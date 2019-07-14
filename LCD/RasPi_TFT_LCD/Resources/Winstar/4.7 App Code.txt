@@ -1,0 +1,120 @@
+// 5.2 8bit-80 interface mode , 262K color , 4.3_Panel:480xRGBx272
+
+void main(void)
+{
+	Initial_SSD1963();
+
+	FULL_ON(0xff0000); 	// red 
+	FULL_ON(0x00ff00); 	// green 
+	FULL_ON(0x0000ff); 	// blue
+}
+
+void Write_Command (unsigned char command)
+{
+	IC_RD = 1;		// /RD=1
+	IC_A0 = 0; 		// D/C=0
+	IC_WR= 0; 		// /WR=0
+	IC_CS = 0; 		// /CS=0
+	Data_BUS = command; 	// Data Bus OUT
+	IC_CS = 1; 		// /CS=1
+	IC_WR= 1; 		// /WR=1
+}
+
+void Write_Data (unsigned char data1)
+{
+	IC_RD = 1;
+	IC_A0 = 1;
+	IC_WR = 0;
+	IC_CS = 0;
+	Data_BUS = data1;
+	IC_CS = 1; IC_WR= 1;
+}
+
+void Command_Write(unsigned char command,unsigned char data1)
+{
+	Write_Command(command);
+	Write_Data(data1);
+}
+
+void SendData(unsigned long color)
+{
+	Write_Data((color)>>16); 		// color is red
+	Write_Data((color)>>8); 		// color is green
+	Write_Data(color); 			// color is blue
+}
+
+void Initial_SSD1963 (void) 			//for 4.3 WQVGA
+{
+	IC_RST = 0;
+	_nop_();
+	_nop_();
+	_nop_();
+	IC_RST = 1;
+	_nop_();
+	_nop_();
+	_nop_();
+
+	Write_Command(0x01); //Software Reset
+	Write_Command(0x01);
+	Write_Command(0x01);
+
+	Command_Write(0xe0,0x01); // START PLL
+	Command_Write(0xe0,0x03); // LOCK PLL
+
+	Write_Command(0xb0); 	//SET LCD MODE SET TFT 18Bits MODE
+	Write_Data(0x08); 	//SET TFT MODE & hsync+Vsync+DEN MODE 
+	Write_Data(0x00); 	//SET TFT MODE & hsync+Vsync+DEN MODE
+	Write_Data(0x01); 	//SET horizontal size=480-1 HightByte
+	Write_Data(0xdf); 	//SET horizontal size=480-1 LowByte
+	Write_Data(0x01); 	//SET vertical size=272-1 HightByte
+	Write_Data(0x0f); 	//SET vertical size=272-1 LowByte
+	Write_Data(0x00); 	//SET even/odd line RGB seq.=RGB
+
+	Command_Write(0xf0,0x00); //SET pixel data I/F format=8bit
+	Command_Write(0x3a,0x60); // SET R G B format = 6 6 6
+
+	Write_Command(0xe2); //SET PLL freq=113.33MHz ;
+	Write_Data(0x22);
+	Write_Data(0x03);
+	Write_Data(0x04);
+
+	Write_Command(0xe6); //SET PCLK freq=9MHz ; pixel clock frequency
+	Write_Data(0x01);
+	Write_Data(0x45);
+	Write_Data(0x47);
+
+	Write_Command(0xb4); //SET HBP
+	Write_Data(0x02); //SET HSYNC Total = 525
+	Write_Data(0x0d);
+	Write_Data(0x00); //SET HBP = 43
+	Write_Data(0x2b);
+
+	Write_Data(0x28); //SET VBP 41 = 40 + 1
+	Write_Data(0x00); //SET Hsync pulse start position
+	Write_Data(0x00);
+	Write_Data(0x00); //SET Hsync pulse subpixel start position
+
+	Write_Command(0xb6); //SET VBP
+	Write_Data(0x01); //SET Vsync total 286 = 285 + 1
+	Write_Data(0x1d);
+	Write_Data(0x00); //SET VBP = 12
+	Write_Data(0x0c);
+	Write_Data(0x09); //SET Vsync pulse 10 = 9 + 1
+	Write_Data(0x00); //SET Vsync pulse start position
+	Write_Data(0x00);
+
+	Write_Command(0x2a); //SET column address
+	Write_Data(0x00); //SET start column address=0
+	Write_Data(0x00);
+	Write_Data(0x01); //SET end column address=480
+	Write_Data(0xdf);
+
+	Write_Command(0x2b); //SET page address
+	Write_Data(0x00); //SET start page address=0
+	Write_Data(0x00);
+	Write_Data(0x01); //SET end page address=272
+	Write_Data(0x0f);
+	
+	Write_Command(0x29); //SET display on
+	Write_Command(0x2c);
+}

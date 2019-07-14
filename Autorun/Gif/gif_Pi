@@ -1,0 +1,62 @@
+==================
+To Playback a Gif:
+==================
+Download:
+-> apt-get install imagemagick
+
+display animated .gifs
+-> animate myimg.gif
+
+You can resize:
+-> animate -resize 1920x1080 myimg.gif
+
+Also, resizing will probably make a mess of most animated gifs. You need to process them first:
+-> convert myimg.gif -coalesce myimg2.gif
+
+The converted myimg2.gif should work properly with animate -resize.
+
+=====================================
+To Create the video file with Python:
+=====================================
+
+import picamera
+import time
+
+with picamera.PiCamera() as camera:
+    camera.resolution = (800, 480)
+
+    # Start a preview and let the camera warm up for 2 seconds
+    camera.start_preview()
+    time.sleep(2)
+
+    camera.start_recording('video.h264')
+    camera.wait_recording(2)
+    camera.stop_recording()
+
+
+====================
+To convert to a Gif:
+====================
+Install gpac
+
+-> sudo apt-get install gpac
+
+Use the MP4Box command to convert your files
+
+-> MP4Box -add video.h264 video.mp4
+
+Use the call method in Python to call your command
+
+-> from subprocess import call
+-> 
+-> cmd = "MP4Box -add video.h264 vidio.mp4" #this is your command
+-> 
+-> call ([cmd], shell=True)
+
+I know using shell=True isn't great for security, but it'll do for now
+
+==========================================================
+http://wingchi.net/how-to-record-gifs-on-the-raspberry-pi/
+==========================================================
+
+

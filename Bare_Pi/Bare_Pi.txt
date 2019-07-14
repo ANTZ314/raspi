@@ -1,0 +1,97 @@
+-------------
+Check memory:
+-------------
+df -h
+df -Bm
+free -h
+
+----------------------------------------------------------
+	Strip Raspbian of bloatware:
+----------------------------------------------------------
+sudo apt-get purge wolfram-engine -y
+sudo apt-get purge minecraft-pi python-minecraftpi -y
+sudo apt-get purge idle3 python3-tk -y
+sudo apt-get purge idle python3-pygame python-pygame python-tk -y
+sudo apt-get purge pistore -y
+sudo apt-get purge sonic-pi -y
+sudo apt-get purge scratch -y
+sudo apt-get purge nuscratch -y
+sudo apt-get purge claws-mail claws-mail-i18n -y
+sudo apt-get purge bluej Greenfoot -y
+
+sudo rm -rf /usr/share/raspi-ui-overrides/applications/wolfram-language.desktop /usr/share/raspi-ui-overrides/applications/wolfram-mathematica.desktop
+sudo rm -rf /home/pi/python_games
+
+----------------------------------------------------------
+	Complete Strip Jessie to bare minimum:
+----------------------------------------------------------
+  apt-get update
+  apt-get purge xserver* -y			<-- Removed Desktop
+  apt-get purge ^x11 -y
+  apt-get purge ^libx -y
+  apt-get purge ^lx -y
+  apt-get purge samba* -y
+  apt-get purge supercollider* -y
+  apt-get purge netsurf* -y
+  apt-get purge omxplayer -y
+  apt-get purge ^epiphany-browser -y
+  apt-get purge sonic-pi -y
+  
+  apt-get purge scratch -y
+  apt-get purge penguinspuzzle -y		<-- not found
+  apt-get purge desktop-base -y
+  apt-get purge lightdm -y
+  apt-get purge obconf -y
+  apt-get purge openbox -y
+  apt-get purge raspberrypi-artwork -y
+  apt-get autoremove -y
+  apt-get upgrade -y
+  apt-get clean
+
+--------------------------------------------------------------------------------------------------------------------
+	To re-install Desktop XDE:
+----------------------------------------------------------
+The default DE on raspbian is lxde. If you want that back, I imagine apt-get install lxde should do it. 
+There may be more pieces needed in the end -- you can see a list of possibilities with apt-cache search lxde. 
+The other common linux DE's are also available, but most of them consume more resources which is why lxde was choosen as the default on the pi.
+
+Note that this does not include a graphical login, which is the task of a display manager (DM). 
+The default on raspbian is lightdm, which you can install with apt-get install lightdm.
+
+To sum up the two parts you'd need to get the original GUI system back would be:
+
+    apt-get install lxde
+    apt-get install lightdm
+
+These should drag in X and other dependencies if they are not there already. If you wish to start X from the command line using startx or xinit, you'll need:
+
+    apt-get install xinit
+
+
+--------------------------------------------------------------------------------------------------------------------
+Try:
+
+sudo apt-get install xutils:
+That should drag in all the packages you need.
+
+Then perhaps use:
+sudo raspi-config
+
+and select the option to boot to desktop.
+
+--------------------------------------------------------------------------------------------------------------------
+---------
+COMMANDS:
+---------
+create:
+mkdir
+
+copy:
+cp file.ext destination
+
+move:
+mv file.ext destination
+
+remove:
+rm -r directory
+rm -rf directory

@@ -1,0 +1,302 @@
+//==============================================================
+//**************************************************************
+//==============================================================
+
+must include sperately into the main 'src' folder:
+
+#include "board_defines.h"	// created from evk1101 defines
+#include "sd_mmc_spi.c"		//
+#include "sd_mmc_spi.h"		//
+#include "sd_mmc_spi_mem_ADS.h"	//
+#include "sd_mmc_spi_mem_ADS.c"	// Created from 'SPI_EXAMPLE1'
+#include "dummy_data.h"		//
+
+//==============================================================
+//************************************************************** 2011-09-29
+//==============================================================
+
+Added AS Frameworks:
+
+CPU	- INTC	- interrupt controller		- (Driver)
+CPU	- PM	- Power Manager			- (Driver)
+GPIO	-	- General Purpose I/O		- (Driver)
+SPI	-	- Serial Peripheral Interface	- (Driver)
+Utility	-	- Generic Board Support		- (Driver)
+MEMORY	- PDCA	- Peripheral DMA Controller	- (Driver)
+MEMORY	-	- Memory Control Access		- (Service)
+
+//==============================================================
+//**************************************************************2011-10-04
+//==============================================================
+
+Added:
+
+TIMING	-	- Clock Control			- (Service)
+
+* Doubled the software delay length (10 000 -> 20 000)
+
+* pcl_switch_to_osc(PCL_OSC0, FOSC0, OSC0_STARTUP);	// Switch main clock to Osc0.
+
+ SAME AS:
+
+* pm_switch_to_osc0(pm, FOSC0, OSC0_STARTUP);		// Switch main clock to Osc0.
+
+//==============================================================
+//**************************************************************2011-10-05
+//==============================================================
+
+Also edit "compiler.h" (in 'utils') -> from line 377 to 396
+
+#define DISABLE   0
+#define ENABLE    1
+#define OFF       0
+#define ON        1
+#define FALSE     0
+#define TRUE      1
+#ifndef __cplusplus
+#if !defined(__bool_true_false_are_defined)
+#define false     FALSE
+#define true      TRUE
+#endif
+#endif
+#define KO        0
+#define OK        1
+#define PASS      0
+#define FAIL      1
+#define LOW       0
+#define HIGH      1
+#define CLR       0
+#define SET       1
+
+//==============================================================
+//**************************************************************2011-10-10
+//==============================================================
+
+added to : SPI_FATFS_EXAMPLE1\src\asf\avr32\services\fs\fat
+
+* FAT file system (service) [ASF]
+
+Manually add:
+
+* fsaccess.c
+* fsaccess.h
+-> #include "fsaccess.h" to main.c
+
+==========================================================================
+int main (void)
+{
+	int i, j;
+	int k;
+	//unsigned char k;
+	int a = 0;
+	
+	//initialize basic board specific settings
+	board_init();
+	
+	// switch the main clock to the external oscillator 0
+	pcl_switch_to_osc(PCL_OSC0, FOSC0, OSC0_STARTUP);
+	
+
+	
+	// Initialise interrupt controller
+	INTC_init_interrupts();
+	
+	// Initialize SD/MMC driver resources: GPIO, SPI and SD/MMC
+	sd_mmc_resources_init();
+
+	// initialize FSACCESS mutex and navigators
+	b_fsaccess_init();				// initialise FAT system
+}
+==========================================================================
+
+//==============================================================
+//**************************************************************2011-10-11
+//==============================================================
+
+Added in:
+
+* int fsaccess_example_read(char * path) 
+reference 'main.c'	-> char filename1[90];
+			-> fsaccess_example_read(filename1);
+
+Changed: (fat.h*)
+
+* #define FS_512B			512			-> 256
+* #define FS_512B_MASK			(512-1)			-> (256-1)
+* #define FS_512B_SHIFT_BIT          	9			-> 8 			// Shift a unit byte to unit sector (512,>>9) -> (256,>>8)
+* #define FS_SIZE_OF_SECTOR		FS_512B 		-> FS256B		// For compliance with old FileSystem module
+* #define FS_MASK_SIZE_OF_SECTOR	FS_512B_MASK		-> FS_256B_MASK		// For compliance with old FileSystem module
+#define  FS_SHIFT_B_TO_SECTOR       	FS_512B_SHIFT_BIT	-> FS_256B_SHIFT_BIT	// For compliance with old FileSystem module
+* #define FS_CACHE_SIZE              	512			-> 256			// Cache size used by module (unit 512B) -> (unit 256B)
+
+//==============================================================
+//**************************************************************2011-10-17
+//==============================================================
+Edited:	
+
+* 'conf_explorer.h' :
+	-> #define FS_LEVEL_FEATURES     (FSFEATURE_READ | FSFEATURE_WRITE_COMPLET)	// was '(0)'
+
+* 'navigation.c' :
+ Added	-> #include "ctrl_access.h"
+	-> #define ID_STREAM_ERR         0xFF								// from "ctrl_access.h"
+	-> extern Ctrl_status stream_state(U8 id);
+	-> extern U16 stream_stop(U8 id);
+	-> extern Ctrl_status stream_mem_to_mem(U8 src_lun, U32 src_addr, U8 dest_lun, U32 dest_addr, U16 nb_sector);
+build succeed...
+
+//==============================================================
+//**************************************************************2011-10-26
+//==============================================================
+
+changed:
+
+#define FS_LEVEL_FEATURES     (FSFEATURE_READ | FSFEATURE_WRITE_COMPLET)	// was '(0)'
+
+to:
+
+#define FS_LEVEL_FEATURES     (FSFEATURE_READ)
+OR
+#define FS_LEVEL_FEATURES     (FSFEATURE_ALL)
+
+//==============================================================
+//**************************************************************2011-11-10
+//==============================================================
+
+//===============================================================================
+//	in 'conf_access.h'
+//	From example 2 -> edit to sd/mmc
+//===============================================================================
+#define LUN_0                DISABLE	//!< On-Chip Virtual Memory.
+#define LUN_1                DISABLE	//!< AT45DBX Data Flash.
+#define LUN_2                ENABLE		//!< SD/MMC Card over SPI.
+#define LUN_3                DISABLE
+#define LUN_4                DISABLE
+#define LUN_5                DISABLE
+#define LUN_6                DISABLE
+#define LUN_7                DISABLE
+#define LUN_USB              DISABLE  //!< Host Mass-Storage Memory. 
+
+#define ACCESS_USB				DISABLE		//!< MEM <-> USB interface. 
+#define ACCESS_MEM_TO_RAM		ENABLE		//!< MEM <-> RAM interface. 
+#define ACCESS_RAM_TO_MEM		ENABLE		//!< RAM <-> MEM interface.
+#define ACCESS_STREAM			ENABLE		//!< Streaming MEM <-> MEM interface. 
+#define ACCESS_STREAM_RECORD	DISABLE		//!< Streaming MEM <-> MEM interface in record mode. 
+#define ACCESS_MEM_TO_MEM		DISABLE		//!< MEM <-> MEM interface. 
+#define ACCESS_CODEC			DISABLE		//!< Codec interface. 
+
+#define SD_MMC_SPI_MEM							LUN_2 
+#define LUN_ID_SD_MMC_SPI_MEM					LUN_ID_2 
+#define LUN_2_INCLUDE							"sd_mmc_spi_mem.h" 
+#define Lun_2_test_unit_ready					sd_mmc_spi_test_unit_ready 
+#define Lun_2_read_capacity						sd_mmc_spi_read_capacity 
+#define Lun_2_wr_protect						sd_mmc_spi_wr_protect 
+#define Lun_2_removal							sd_mmc_spi_removal 
+#define Lun_2_usb_read_10						sd_mmc_spi_usb_read_10 
+#define Lun_2_usb_write_10						sd_mmc_spi_usb_write_10 
+#define Lun_2_mem_2_ram							sd_mmc_spi_mem_2_ram 
+#define Lun_2_ram_2_mem							sd_mmc_spi_ram_2_mem 
+#define LUN_2_NAME								"\"SD/MMC Card over SPI\""
+
+//==============================================================
+//**************************************************************2011-11-11
+//==============================================================
+
+#ifndef ASF_H
+#define ASF_H
+
+/*
+ * This file includes all API header files for the selected drivers from ASF.
+ *
+ * The file is automatically generated and will be re-written when
+ * running the ASF driver selector tool. Any changes will be discarded.
+ */
+
+// From module: CPU - Interrupt management
+#include <interrupt.h>
+
+// From module: Common build items for user board support templates
+#include <user_board.h>
+
+// From module: UTILITY - Compiler abstraction layer and code utilities
+#include <compiler.h>
+#include <status_codes.h>
+
+// From module: UTILITY - Generic board support
+#include <board.h>
+
+#include <power_clocks_lib.h>
+#include <sleep.h>
+#include <pdca.h>
+#include <sd_mmc_spi_mem.h>
+#include <sd_mmc_spi.h>
+#include <fat.h>
+#include <fs_com.h>
+#include <file.h>
+#include <navigation.h>
+#include <ctrl_access.h>
+#include <intc.h>
+#endif // ASF_H
+
+//==============================================================
+//**************************************************************2011-11-15
+//==============================================================
+
+// ADDED TO "navigation.c" -> line 44 - 57
+
+//_____  I N C L U D E S ___________________________________________________
+#include <ctype.h> // Use of toupper
+
+#include "conf_explorer.h"
+#include "navigation.h"
+#include "file.h"
+#include "ctrl_access.h"
+#include LIB_CTRLACCESS
+
+
+//_____ MY ADDED DEFINES ____________________________________________________
+#define ID_STREAM_ERR         0xFF								// from "ctrl_access.h"
+extern Ctrl_status stream_state(U8 id);
+extern U16 stream_stop(U8 id);
+extern Ctrl_status stream_mem_to_mem(U8 src_lun, U32 src_addr, U8 dest_lun, U32 dest_addr, U16 nb_sector);
+
+//==============================================================
+//**************************************************************2012-03-09
+//==============================================================
+in "user_board.h" -> because there are 2 SPI's on UC3A0512
+
+#define SD_MMC_SPI                  (&AVR32_SPI0)			// (&AVR32_SPI1)
+#define SD_MMC_SPI_NPCS             0
+#define SD_MMC_SPI_SCK_PIN          AVR32_SPI0_SCK_0_0_PIN
+#define SD_MMC_SPI_SCK_FUNCTION     AVR32_SPI0_SCK_0_0_FUNCTION
+#define SD_MMC_SPI_MISO_PIN         AVR32_SPI0_MISO_0_0_PIN
+#define SD_MMC_SPI_MISO_FUNCTION    AVR32_SPI0_MISO_0_0_FUNCTION
+#define SD_MMC_SPI_MOSI_PIN         AVR32_SPI0_MOSI_0_0_PIN
+#define SD_MMC_SPI_MOSI_FUNCTION    AVR32_SPI0_MOSI_0_0_FUNCTION
+#define SD_MMC_SPI_NPCS_PIN         AVR32_SPI0_NPCS_0_0_PIN			// AVR32_SPI_NPCS_0_0_PIN => PA16
+#define SD_MMC_SPI_NPCS_FUNCTION    AVR32_SPI0_NPCS_0_0_FUNCTION
+
+//==============================================================
+//**************************************************************2012-03-12
+//==============================================================
+Added to "conf_access.h":
+
+//ADDED IN----------------------------------------------------->
+#define VIRTUAL_MEMORY_ENABLE		false
+#define AT45DBX_ENABLE				false
+#define SD_MMC_SPI_ENABLE			true
+#define SD_MMC_MCI_ENABLE			false
+#define USB_MASS_STORAGE_ENABLE		false
+
+#define ACCESS_USB_ENABLED			false
+#define ACCESS_MEM_TO_RAM_ENABLED	true	//false
+#define ACCESS_MEM_TO_MEM_ENABLED	true
+//ADDED IN----------------------------------------------------->
+#if ACCESS_MEM_TO_MEM_ENABLED
+#define ACCESS_STREAM        true	//false //!< Streaming MEM <-> MEM interface.
+#define ACCESS_MEM_TO_MEM    true	//!< MEM <-> MEM interface.
+#else
+#define ACCESS_STREAM        false	//!< Streaming MEM <-> MEM interface.
+#define ACCESS_MEM_TO_MEM    false	//!< MEM <-> MEM interface.
+#endif
+// <------------------------------------------------------------

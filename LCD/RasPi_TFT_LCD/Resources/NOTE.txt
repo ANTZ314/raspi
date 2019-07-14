@@ -1,0 +1,113 @@
+
+=======================================
+	NOTE!: MAIN FIRMWARE FROM WAYNE
+		IS ON EXTERNAL HD
+=======================================
+
+===============
+PROCESSOR		- PIC32MZ2048EFH144 	- Microchip	- TQFP		- RS [905-5179]
+
+			- PIC24FJ256DA210	- Microchip 	- Package 	- RS []
+
+===============
+16 MB Serial Flash	- SST25VF016B		- Microchip 	- 8-Pin, SOIC	- RS [723-8735]
+			- IS64WV102416BLL 	- Microchip 	- 		- RS [905-517]
+===============
+2K Bus Serial EEPROM	- 25AA02E48-I-SN	- Microchip 
+===============
+
+====================================
+Path to MLA apps examples...:
+====================================
+C:\microchip\mla\v2015_08_10
+
+From:
+http://www.studentcompanion.co.za/microchip-libraries-for-applications/
+
+================================================================================================
+MPLAB Harmony Graphics Composer (MHGC)
+================================================================================================
+http://microchip.wikidot.com/harmony:mhc-mhgc-overview
+
+Code Snippets:
+http://www.embeddedcodesource.com/
+
+LCD code:
+http://www.embeddedcodesource.com/category/display?sort=alpha
+
+Graphics Display Designer X -&- Microchip Graphics Display Designer - MLA;
+http://www.embeddedcodesource.com/browse/category?sort=alpha&slug=mplab-x-plugins&page=2
+
+================================================================================================
+DevKit & MLA:
+================================================================================================
+http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=DM240315-2
+
+
+Startup Tutorial:
+http://microchip.wikidot.com/hif2131:start
+
+
+Microchip’s Library for Applications (MLA):
+http://microchip.wikidot.com/hif2131:mla-installation
+
+
+Getting Started: Running the Application Notes demo:
+file:///C:/microchip/mla/v2015_08_10/framework/gfx/doc/getting_started/getting_started_running_the_graphics_application_notes_demo.htm
+
+
+Getting Started: Programming External Memory
+file:///C:/microchip/mla/v2015_08_10/framework/gfx/doc/getting_started/getting_started_programming_external_memory.htm
+
+
+Microchip Libraries for Applications:
+http://www.studentcompanion.co.za/microchip-libraries-for-applications/
+
+
+Graphics LCD Controller PICtail™ Plus SSD1926 Board:
+http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=ac164127-5
+ -> AN1246 - How to Create Widgets in Microchip Graphics Library
+ -> AN1136 - How to Use Widgets in Microchip Graphics Library
+
+
+Graphic Display Designer [GDD]:
+http://www.microchip.com/SWLibraryWeb/product.aspx?product=Graphics%20Display%20Designer%20X
+
+
+SSD1926 MLA demo ? ?
+http://www.microchip.com/forums/m795333.aspx
+
+================================================================================================
+Requirements:
+================================================================================================
+MPLAB XC16: 
+HostID: 3ca9f4709a04
+http://microchip.wikidot.com/hif2131:whatisneeded
+
+
+Download MLA (libraries):
+http://www.microchip.com/mplab/microchip-libraries-for-applications
+
+
+================================================================================================
+GDD from Rantshi:
+================================================================================================
+
+GDD-x:
+http://www.microchip.com/SWLibraryWeb/product.aspx?product=Graphics%20Display%20Designer%20X
+
+features controlled by gfx-config.h are: [Using External Flash]
+http://microchip.wikidot.com/hif2131:project-structure
+
+Graphics "Primitives":
+http://microchip.wikidot.com/hif2131:primitives
+
+Graphics Objects:
+http://microchip.wikidot.com/hif2131:objects
+
+
+NAND Flash Basic I/O Library:
+http://www.microchip.com/forums/m377988.aspx
+
+
+================================================================================================

@@ -1,0 +1,32 @@
+/* BUTTON CHECK 1 */		
+==================================================================
+
+// R3 - C1 => EXIT	-> '2'
+gpio_set_pin_low(ROW3);					// column1 = pull down
+while(button != 0x00)
+{
+	// when btn pressed COL1 will become low
+	button = gpio_get_pin_value(COL1);
+}			
+gpio_set_pin_high(ROW3);
+button = true;
+blink_led1();
+
+==================================================================
+/* BUTTON CHECK 1 */
+
+	gpio_set_pin_low(ROW1);					// column1 = pull down
+	while (1)
+	{
+		
+		button = gpio_get_pin_value(COL1);
+		if (button != 0x00)
+		{
+			blink_led2();					// red
+		}			
+		else
+		{
+			blink_led1();					// green
+		}
+	}
+

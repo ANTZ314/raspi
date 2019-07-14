@@ -1,0 +1,258 @@
+From: "Saved by Windows Internet Explorer 8"
+Subject: AVR Freaks :: View topic - 3.5" color display with ssd1963
+Date: Tue, 3 May 2011 14:01:57 +0200
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_0000_01CC099A.AA258160"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.1.7601.17574
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_01CC099A.AA258160
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=92956&start=0
+
+=EF=BB=BF<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" =
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" --><HTML=20
+dir=3Dltr><HEAD><TITLE>AVR Freaks :: View topic - 3.5" color display =
+with ssd1963</TITLE>
+<META content=3D"text/html; charset=3Dutf-8" http-equiv=3DContent-Type>
+<META content=3Dtext/css http-equiv=3DContent-Style-Type>
+<STYLE type=3Dtext/css>BODY {
+	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; LETTER-SPACING: =
+1px; FONT-SIZE: 12px
+}
+.code {
+	BORDER-BOTTOM: black 1px solid; BORDER-LEFT: black 1px solid; =
+FONT-SIZE: 11px; BORDER-TOP: black 1px solid; BORDER-RIGHT: black 1px =
+solid
+}
+.quote {
+	BORDER-BOTTOM: black 1px solid; BORDER-LEFT: black 1px solid; =
+FONT-SIZE: 11px; BORDER-TOP: black 1px solid; BORDER-RIGHT: black 1px =
+solid
+}
+.php {
+	BORDER-BOTTOM: black 1px solid; BORDER-LEFT: black 1px solid; =
+FONT-SIZE: 11px; BORDER-TOP: black 1px solid; BORDER-RIGHT: black 1px =
+solid
+}
+.Forum {
+	FONT-SIZE: 18px; FONT-WEIGHT: bold
+}
+.Topic {
+	FONT-SIZE: 14px; FONT-WEIGHT: bold
+}
+.genmed {
+	FONT-SIZE: 12px
+}
+HR.sep {
+	BORDER-BOTTOM: #d1d7dc 0px solid; BORDER-LEFT: #d1d7dc 0px solid; =
+HEIGHT: 0px; BORDER-TOP: #d1d7dc 1px solid; BORDER-RIGHT: #d1d7dc 0px =
+solid
+}
+</STYLE>
+
+<META name=3DGENERATOR content=3D"MSHTML 8.00.7601.17573"></HEAD>
+<BODY><SPAN class=3DForum>
+<DIV align=3Dcenter>AVR Freaks</DIV></SPAN><BR><SPAN class=3DTopic>AVR =
+forum - 3.5"=20
+color display with ssd1963</SPAN><BR>
+<HR>
+<B>sparrow2</B> - Apr 29, 2010 - 09:26 PM<BR><B>Post subject: </B>3.5" =
+color=20
+display with ssd1963
+<HR class=3Dsep>
+ I just got a winstar 3.5" 320x240 colour display with a driver board, =
+that has=20
+a ssd1963 controller. <BR>There is a lot of setups for that chip are =
+there any=20
+that have all the init values to get it running ?
+<HR>
+ <B>bobgardner</B> - Apr 29, 2010 - 09:48 PM<BR><B>Post subject: </B>RE: =
+3.5"=20
+color display with ssd1963
+<HR class=3Dsep>
+ I looked for the datasheet.... found it here... <!-- m --><A=20
+href=3D"http://www.microtipsusa.com/pdfs/driver_controller_spec/SSD1963.p=
+df"=20
+target=3D_blank>http://www.microtipsusa.com/pdfs/driver_controller_spec/S=
+SD1963.pdf</A><!-- m -->=20
+<BR>Looks pretty neat.... has room for several pages of 320x240 rgb. I =
+have=20
+fought with several lcd/controller inits.... you need to tell it the =
+height and=20
+width of the lcd, bytes per pix. Then to tell if you have the right =
+init, you=20
+need a fillscreen and a clearscreen... just 2 nested loops for x and =
+y.... the x=20
+and y could be upside down and backward, but you cant tell till you get =
+it=20
+working. If you had 2 of them and sent me one, I'd try to get my simple =
+graphics=20
+stuff to run on it. (lines, rects, text etc)
+<HR>
+ <B>sparrow2</B> - Apr 29, 2010 - 10:30 PM<BR><B>Post subject: </B>RE: =
+3.5"=20
+color display with ssd1963
+<HR class=3Dsep>
+ I do know that part it's the PLL etc. that would be nice to know and =
+not just=20
+try and error
+<HR>
+ <B>bobgardner</B> - Apr 30, 2010 - 12:15 AM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+Here's the c source to the init routine on newhavendisplays site
+<HR>
+ <B>sparrow2</B> - Apr 30, 2010 - 07:22 AM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+thanks that will save time I hope <IMG border=3D0 alt=3DWink=20
+src=3D"http://www.avrfreaks.net/modules/PNphpBB2/images/smiles/icon_wink.=
+gif">
+<HR>
+ <B>sparrow2</B> - Jun 11, 2010 - 11:43 PM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+Ok now I had time to get it up running, and thanks to Bob I did not have =
+any=20
+problems to get something on the display, but I was missing some lines =
+so for=20
+the info on a winstar 320x240 with a ssd1963 driver vsync has to be =
+0x0197 and=20
+not 0x0148. <BR><BR>I can't wait to play with this privat, to have 1 MB =
+of RAM=20
+on a AVR is a dream. And more than than 800KB as a sample buffer, nice =
+storage=20
+OSC.
+<HR>
+ <B>toalan</B> - Jun 15, 2010 - 03:28 AM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+crystal fonts has 320x240 lcds for a good price. The example code from =
+CF is=20
+done in AVR studio. <BR><BR>I have the 2.4" 320x240, <!-- m --><A=20
+href=3D"http://www.crystalfontz.com/product/CFAF240320K-T-TS"=20
+target=3D_blank>http://www.crystalfontz.com/product/CFAF240320K-T-TS</A><=
+!-- m -->=20
+. The demo code from CF was for the atmega1281, I managed to get 8 bit =
+parallel=20
+working with an atmega88. Was not able to get 16 bit parallel working, =
+probably=20
+just a wiring problem. <BR><BR>Once I realized how much data was =
+required to=20
+drive a 320x240 color display, I have to really think hard about using =
+it in a=20
+product with an AVR 8bit uC. That stuff really does need a 32 bitter to =
+do=20
+decent graphics. Not only alot of MIPS, but also alot of code, you can =
+use=20
+commercial graphics libraries but you end up paying alot of money. High =
+rez=20
+color LCD is a world of hurt.
+<HR>
+ <B>sparrow2</B> - Jun 16, 2010 - 02:59 PM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+I have the basic things up running now, do init , text <BR>plot points, =
+boxes=20
+etc. and that take about 2K of code in GCC code (ASM code would be about =
+the=20
+half). So I don't see it as a problem with a AVR.(I use a mega16 @ 16 =
+MHz). I=20
+really only need to make dma routine to and from a dataflash and the =
+display=20
+RAM. I allreaddy have made the rs232 routine that can show a photo send =
+as a=20
+textfile from a PC.(I have made a small Delphi program that make the =
+textfile).=20
+<BR>The code for the touch screen will only be about 100 bytes of code.
+<HR>
+ <B>bobgardner</B> - Jun 16, 2010 - 04:22 PM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+Can you write a one or two paragraph outline of how to read the =
+touchscreen?
+<HR>
+ <B>sparrow2</B> - Jun 16, 2010 - 05:02 PM<BR><B>Post subject: </B>
+<HR class=3Dsep>
+Yes <BR>You use 4 IO's 2 has to be ADC(but best with all 4). <BR>output =
+low and=20
+high on the X pins and read one of the Y pins with a ADC (It's best to =
+read on=20
+both). <BR>Then flip direction on the X and Y pins. and get the X value. =
+
+<BR><BR>Edit <BR>I should add that you need some filtering. And a check =
+that the=20
+value have been "about" stable for some readings before you deside that =
+it's a=20
+good value (no touch give a lot of noisey readings).
+<HR>
+ <B>software_99</B> - Sep 01, 2010 - 09:09 AM<BR><B>Post subject: =
+</B>3.5" color=20
+display with ssd1963
+<HR class=3Dsep>
+ Good Day, <BR><BR>I have a 3.5" 320*240 from winstar it has a 16 bit =
+interface.=20
+I can successfully display an image using it in 8bit mode, but i cannot =
+get it=20
+working in either of the 2 16 bit modes as described in the SSD1963 =
+Datasheet. I=20
+have tried everything i can think of from reading the initialization =
+code from=20
+Winstar as well as the datasheet. <BR><BR>Any help will be appreciated=20
+<BR>Regards <BR>Fanie.
+<HR>
+ <B>software_99</B> - Sep 07, 2010 - 12:12 PM<BR><B>Post subject: =
+</B>RE: 3.5"=20
+color display with ssd1963
+<HR class=3Dsep>
+ Hi All, <BR><BR>I have found out how to send the data for 16 bit mode, =
+but the=20
+display seems to only display 16 colors and not 262k colors, does anyone =
+have=20
+experience with this display? sparrow2 or bobgardner? <BR><BR>Any help =
+will be=20
+appreciated.
+<HR>
+ <B>bobgardner</B> - Sep 07, 2010 - 01:04 PM<BR><B>Post subject: </B>RE: =
+3.5"=20
+color display with ssd1963
+<HR class=3Dsep>
+ That number of colors needs 6 bits in R, G and B... that's 18 bits per =
+pixel.=20
+How do you load and store an 18 bit pixel over a 16 bit port? If its =
+possible,=20
+its got to be in the datasheet somewhere.
+<HR>
+ <B>sparrow2</B> - Sep 07, 2010 - 02:01 PM<BR><B>Post subject: </B>RE: =
+3.5"=20
+color display with ssd1963
+<HR class=3Dsep>
+ I have only used the 3 times 8 bit (where only 6 bit is used) in 8 bit =
+mode and=20
+that works fine.
+<HR>
+=20
+<DIV align=3Dcenter>All times are GMT + 1 Hour<BR>Powered by <A=20
+style=3D"TEXT-DECORATION: none" href=3D"http://www.pnphpbb.com/" =
+target=3D_blank><FONT=20
+color=3D#ff6600><B><I>PN</I></B></FONT><FONT=20
+color=3D#0001f0><B>phpBB2</B></FONT></A>&nbsp;=C2=A9 2003-2006&nbsp;The =
+PNphpBB=20
+Group<BR><A=20
+onclick=3D"window.open('./modules/PNphpBB2/docs/copyrite.html', =
+'_pnphpbb2_credits', 'HEIGHT=3D250,WIDTH=3D450,scrollbars=3Dyes');return =
+false;"=20
+href=3D"http://www.avrfreaks.net/modules/PNphpBB2/docs/copyrite.html"=20
+target=3D_pnphpbb2_credits>Credits</A> </DIV></BODY></HTML>
+
+------=_NextPart_000_0000_01CC099A.AA258160
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: http://www.avrfreaks.net/modules/PNphpBB2/images/smiles/icon_wink.gif
+
+R0lGODlhDwAPALMMAP/qAEVFRQAAAP/OAP/JAP6dAP+0AP/+k//9E///x//lAP//6wAAAAAAAAAA
+AAAAACH5BAEAAAwALAAAAAAPAA8AAARXkEkZap2Y1ZXOGRcWcAgCnEMRTEEnnDCQrtrxxjCoJSZw
++y+CKnDo/WAEQ+WAwyUrvWZQGRg0TwKFcFX1xYI6zWCgEJizhBlrTGi31aKAYW4YZlgW2iQCADs=
+
+------=_NextPart_000_0000_01CC099A.AA258160--

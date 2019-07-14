@@ -1,0 +1,7 @@
+void outputBinary (int value)
+{
+if ((value & 0x01) == 0) digitalWrite (17, 0) else digitalWrite (17, 1) ;
+if ((value & 0x02) == 0) digitalWrite (18, 0) else digitalWrite (18, 1) ;
+if ((value & 0x04) == 0) digitalWrite (21, 0) else digitalWrite (21, 1) ;
+... etc.
+}

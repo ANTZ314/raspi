@@ -1,0 +1,25 @@
+=====================================
+			Description:
+=====================================
+bash1	- Python launch shell, terminal read name and return
+bash2	- Python launch shell, shell opens image in default
+bash3	- Python launch shell, takes pic & saves with date as name
+bash4	- test python launch shell script wait for response
+bashcam	- 
+
+=====================================
+		BASH INSTRUCTIONS
+=====================================
+After creating the bash file (.sh)
+navigate to file location
+
+$ chmod u+x file.sh
+$ ./file.sh
+
+
+Make sure image storage file paths are correct!!
+
+=====================================
+	VIDEO PLAYBACK
+=====================================
+$ omxplayer video.h264

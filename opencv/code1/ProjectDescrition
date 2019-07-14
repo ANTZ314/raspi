@@ -1,0 +1,37 @@
+-------
+Python:
+-------
+
+FaceDet_Py	- Opens WebCam and Detects Face (Python 3.0.0)
+
+FaceDet_Py2	- Opens referenced Image & detects faces (python 2.7 & python 3)
+
+FaceDet_Py3	- Opens referenced Image & detects faces & scales image to 1200x1200
+
+FaceDet_Py4	- FAILS: Code improvements to the original detect from image file
+
+===============================================================
+After below installation, To run Python CV project:
+$ workon cv
+$ python
+>>> import cv2
+>>> cv2.__version__
+'3.0.0'
+
+===============================================================
+To install:
+-----------
+BEST INSTALLATION:
+http://www.pyimagesearch.com/2015/07/20/install-opencv-3-0-and-python-3-4-on-ubuntu/
+
+------
+- OR -
+------
+
+pip install opencv-python
+
+(also installs numpy)
+
+
+
+

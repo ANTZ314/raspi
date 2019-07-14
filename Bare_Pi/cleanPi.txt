@@ -1,0 +1,24 @@
+
+To check available memory:
+$ df -Bm
+
+To check which folders take th most space:
+$ sudo du -xh / | grep -P "G\t"
+
+
+The "cleanPi.sh" is available in Github as a gist—
+https://gist.github.com/samatjain/4dda24e14a5b73481e2a
+I’ll keep it up to date, 
+and feel free to fork it and add/remove whatever other packages you find necessary.
+
+
+Download and run it with:
+-------------------------
+sudo cp /etc/network/interfaces /etc/network/interfaces.bak
+wget https://gist.githubusercontent.com/samatjain/4dda24e14a5b73481e2a/raw/5d9bac8ec40b94833b4e9938121945be252fdee1/Slim-Raspbian.sh -O Slim-Raspbian.sh
+sh ./Slim-Raspbian.sh | sudo sh
+
+OR 
+
+chmod u+x cleanPi.sh
+./cleanPi.sh

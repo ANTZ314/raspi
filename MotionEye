@@ -1,0 +1,52 @@
+sudo apt-get install motion
+
+wget https://github.com/ccrisan/motioneye/wiki/precompiled/ffmpeg_3.1.1-1_armhf.deb
+dpkg -i ffmpeg_3.1.1-1_armhf.deb
+
+sudo apt-get install python-pip python-dev curl libssl-dev libcurl4-openssl-dev libjpeg-dev libx264-148 libavcodec57 libavformat57 default-libmysqlclient-dev libswscale4 libpq5
+
+sudo apt-get install python-pip python-dev curl libssl-dev libcurl4-openssl-dev libjpeg-dev libx264-142 libavcodec56 libavformat56 libmysqlclient18 libswscale3 libpq5
+
+pip install motioneye
+
+mkdir -p /etc/motioneye cp
+/usr/local/share/motioneye/extra/motioneye.conf.sample
+/etc/motioneye/motioneye.conf
+
+mkdir -p /var/lib/motioneye
+
+cp /usr/local/share/motioneye/extra/motioneye.systemd-unit-local
+/etc/systemd/system/motioneye.service systemctl daemon-reload
+systemctl enable motioneye systemctl start motioneye
+
+------------------------------
+libx264-148
+libavcodec57
+libavformat57
+default-libmysqlclient-dev
+libswscale4
+------------------------------
+
+sudo apt-get install ffmpeg v4l-utils
+
+sudo apt-get install libmariadbclient18 libpq5
+
+wget https://github.com/Motion-Project/motion/releases/download/release-4.1.1/pi_stretch_motion_4.1.1-1_armhf.deb
+sudo dpkg -i pi_stretch_motion_4.1.1-1_armhf.deb
+
+
+sudo apt-get install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+
+
+sudo pip install motioneye
+
+sudo mkdir -p /etc/motioneye
+cp /usr/local/share/motioneye/extra/motioneye.conf.sample /etc/motioneye/motioneye.conf
+
+
+sudo cp /usr/local/share/motioneye/extra/motioneye.systemd-unit-local /etc/systemd/system/motioneye.service
+systemctl daemon-reload
+systemctl enable motioneye
+systemctl start motioneye
+
+

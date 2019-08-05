@@ -1,0 +1,37 @@
+Raspberry Pi time lapse (60 pics in 1 hour)
+From:
+http://www.makeuseof.com/tag/raspberry-pi-camera-module/
+---------------------------------------------------------
+* First install:
+$ sudo apt-get install libav-tools
+-OR-
+$ sudo apt install ffmpeg
+
+* Then run this python script (60min capture)
+python script.py
+
+===================
+To run at bootup:
+===================
+$ sudo crontab -e
+Select nano and add this line:
+@reboot python /home/pi/Pictures/timelapse/pi_time_lapse.py
+
+--------
+To kill:
+--------
+$ ps aux -less
+-> find the PID od the python script
+$ sudo kill "ṔID"	-> kill 541
+
+---------------------------------------------------------------------
+-> ffmpeg changed so create an alias to the new one:
+-> in "~/.bashrc" add this line:
+-> alias ffmpeg=avconv
+
+* Then To view the images as a film, compile the images:
+$ ffmpeg -y -f image2 -i /home/pi/Pictures/timelapse/time2/frame%03d.jpg -r 15 -vcodec libx264 -profile high -preset slow /home/pi/Desktop/timelapse.mp4
+---------------------------------------------------------------------
+
+Play in OMX:
+omxplayer timelapse.mp4

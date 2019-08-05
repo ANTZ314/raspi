@@ -1,0 +1,90 @@
+==================
+CODE DESCRIPTIONS:
+==================
+
+ --------------
+ Device Checks:
+ --------------
+ 
+  * Device1_2.py	- Checks and displays all IO devices, then if Audio device number (index)
+					  is correct (line22) it will confirm if format is supported (Python2)
+  * Device1_2b.py	- Basically the same as above with extra parameters added
+  * Device1_3.py	- Same as 2 above again but should be Python3 version
+  * Device2.py		- Shorter version of above but different to below (uses 'PyAudio')
+  * Device2_3.py	- Shorter version of device check and print out (uses 'Sound_device')
+  
+ --------
+ PYAUDIO:			-> Use Python3 for all 'import pyaudio' on ubuntu:
+ --------
+ * audio_mod,py		- Test PyAudio module and device check (Fails in Python 2.7)?
+ * playWAV1.py		- PyAudio to play WAV -> "python PlayWAV1.py sample1.wav"
+ * MyRec1.py		- Record audio from default mic, save as "output.wav" (default device - soft?)
+ * MyRec2.py		- MyRec1.py written into seperate classes (no Input/Outputs)
+ * MyRec3.py		- MyRec2.py selects device 4 according to output of 'Device1/2.py'
+					- Also had to change 'RATE' from 44100 to 48000 to match the mic rate (USB Mic)
+ * MyRec4.py		- Records 5sec .wav clip (SAMSON) (1st check device number)
+ * MyRec5.py		- Checks device, then records 5sec .wav clip (SAMSON) (NO device auto-update)
+ x MyRec6.py		- Same as 'MyRec5.py' with DEV passed to 'makeFile(DEV)' function
+ x MyRec7.py		- Check and auto-select audio input device
+					- Initialise default 44100 onboard mic
+					- Wait for (RMS > Threshold) as trigger
+					- Trigger records until 'silence time-out' to stop
+ 
+ * Record1.py		- Jeans Audio recording/monitoring
+ * Record2.py		- Speak word to start recording to .wav file
+
+ ------
+ Audio: (Folder)	-> Python3..?
+ ------
+ * Audio.py			- main() function calling class functions of 'AudioClass.py'
+   AudioClass.py	- [Audio Class] Check for input devices, selects "Audio" device
+					- Uses selected Device number for Audio recording and stores as .wav
+ 
+ -----------
+ Audio_Trig: (Folder)
+ -----------
+ * trigger1.py		- Triggers recording from 'CLAP!' (RMS > Threshold)records and stops after time-out
+ x triggerJ.py		- Continuously prints '.', if RMS > Threshold opens 2.gif in default
+ * trigger2.py		- Check, auto-select & initialise Audio Input device
+					- Wait for (RMS > Threshold) as trigger, time-out and exit
+ x trigger2b.py		- Check, auto-select & initialise Audio Input device
+					- Wait for (RMS > Threshold) as trigger
+					- Trigger records until 'silence time-out' to stop
+					- Save recorded to .wav file 
+ x trigger2c.py		- Same as 'trigger2b.py' but edited for Python 3.x
+					x Recording Error: float to interger?
+ * trigger3.py		- Same 'trigger2.py' but in a class
+ * trigger4.py		- Same as 'AudioClassT.py' without the Class
+					- Find device, wait for trigger
+					- Changed recording routine
+					x try to prepend audio block before trigger
+ x trigger5.py		x Combination of 'trigger4.py' & 'triggerj.py'
+ x AudioT.py		- main() function calling class functions of 'AudioClassT.py'
+   AudioClassT.py	- Class containing functions to find audio device, then initialise stream
+					  using that devices details, then wait for an audio trigger to start recording
+					  a predefined sound clip (10sec?) or stop when no audio recieved (time-out for both)
+					- Crashes due to overflow?
+ x AudioClassT1.py	- backup of 'AudioClassT.py' [2017-04-20]
+ x AudioClassT2.py	- backup of 'AudioClassT.py' [2017-05-04]
+ 
+ -------
+ Jean's: (Folder)
+ -------
+ * RecJean.py		- Audio signal is continuously RMS averaged and compared to 'THRESHOLD' value 
+					- Outpus: '.' < THRESHOLD    '!' > THRESHOLD accordingly
+ * RecJean2.py		- Runs as above, but THRESHOLD value dropped lower (edit value)
+ x RecJean3.py		- Set input device to SAMSON - ERROR: Input overflowed?
+ * RecThread.py		- Newer version from Jean, uses multi-threading and triggers
+ * RecThread2.py	- Put previous into class, uses multi-threading and triggers
+ x RecThread3.py	- want to Prepend 2sec before trigger to recordined audio clip
+					- want to edit to take USB microphone (auto)
+ --------
+ AUDIOOP:			-> For processing raw audio
+ --------
+ x MyRePlay.py		- 
+ x audioop1.py		- 
+ x 
+
+ x Trigger1.py		- Edited version of SpeechEg.py
+ 
+

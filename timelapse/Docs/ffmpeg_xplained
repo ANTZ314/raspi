@@ -1,0 +1,31 @@
+If you have a series of JPEG which are taken over a period of time, you can use the following 
+command to create a timelapse video:
+
+--------------------------------------------------------------------------------------------
+ffmpeg -f image2 -r 1 -i your_image%02d.jpg -r 15 -s hd1080 -vcodec libx264 your_output.mp4
+--------------------------------------------------------------------------------------------
+
+['ffmpeg' change to 'avconv']
+
+===============================
+Let me go through this command:
+===============================
+In general, any options before -i denote the input file parameters. For this, we have -f image2 -r 1 -i your_image%02d.jpg 
+
+-f is to force the input file format as image2. Image2 denote input file as jpeg
+
+-r is to denote the input frame rate. This is important and is a common mistake made by user. If you do not put -r, it will default -r as 25. 
+Thus, if you see your ffmpeg output contains a lot of duplicate or dropped frame. You need to define the frame rate of the input 
+file that match with the output frame rate.
+
+-i is to set your input file names. %02 means that ffmpeg will take your_image00.jpg to your_image99.jpg as input consideration.
+
+Next, any option after -i denote the output file parameters. For this, we have -r 15 -s hd1080 -vcodec libx264 your_output.mp4
+
+-r is to denote the output frame rate.
+
+-s is to set the output frame size to hd1080
+
+-vcodec denote the codec to be used to encode the output file. libx264 is the standard encoder for H.264 encoding in FFMPEG
+
+your_output.mp4 is the output name

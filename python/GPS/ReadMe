@@ -1,0 +1,33 @@
+=====================
+Python USB to Serail:
+=====================
+
+Arduino to serial Examples:
+https://petrimaki.com/2013/04/28/reading-arduino-serial-ports-in-windows-7/
+
+Python serial port communication:
+https://tungweilin.wordpress.com/2015/01/04/python-serial-port-communication/
+
+Serial RS232 connections in Python:
+http://www.varesano.net/blog/fabio/serial%20rs232%20connections%20python
+
+	/*------------------------*/
+    /*-- GPS CONFIGURATIONS --*/
+    /*------------------------*/
+    /* $PUBX,41,portId,inProto,outProto,baudrate,autobauding*cs<CR><LF> */
+    const u8 Baud_38400[] = "$PUBX,41,1,0003,0001,38400,0*26\r\n\0";            // "$PUBX,41,1,0003,0003,38400,0*24\r\n"
+    const u8 Baud_57600[] = "$PUBX,41,1,0003,0001,57600,0*2D\r\n\0";            // Autobauding -> 1=enable, 0=disable
+
+    /* Turning off all GPS NMEA strings on the uBlox modules */
+    const u8 CONF_GGA [] = "$PUBX,40,GGA,0,0,0,0*5A\r\n\0";                     // GGA: Global positioning system fix data
+    const u8 CONF_GLL [] = "$PUBX,40,GLL,0,0,0,0*5C\r\n\0";                     // GLL: Latitude and longitude, with time of position fix and status
+    const u8 CONF_NMEA[] = "$PUBX,40,VTG,0,0,0,0*5E\r\n\0";                     // VTG: disable all default NMEA (VTG) messages
+    const u8 CONF_GSV [] = "$PUBX,40,GSV,0,0,0,0*59\r\n\0";                     // GSV: GNSS Satellites in View
+    const u8 CONF_GSA [] = "$PUBX,40,GSA,0,0,0,0*4E\r\n\0";                     // GSA: GNSS DOP and Active Satellites
+    const u8 CONF_ZDA [] = "$PUBX,40,ZDA,0,0,0,0*44\r\n\0";                   	// ZDA: Time & Date
+	const u8 CONF_RMC [] = "$PUBX,40,RMC,0,0,0,0*47\r\n\0";                   	// RMC: Recommended Minimum data
+    
+NOTE:
+-----
+Latte Version written for Python 2.7
+PC Versions written Pythoin 3.6.2

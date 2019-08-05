@@ -1,0 +1,23 @@
+==================
+Project TimeLapse:
+==================
+
+Slide Switch:
+    -> When on start Time Lapse Bash Script (save to folder)
+    -> When Off: Option to clear all images OR Compile to Video (preset)
+
+2 Buttons:
+    -> Hold Btn1 3sec for "Configuration Mode" (blink LED indicator / RGB color)
+    -> Btn2 Select Mode: 30sec / 5min / 10min / 30min / 1hr 
+
+3rd Button:
+    -> Btn3 copy new video file to USB or Email?
+    -> Indicate no USB with LED or success (RGB)
+
+
+Components:
+    -> Camera + Mount
+    -> Thru-hole RGB LED
+    -> 3x Push Buttons
+    -> Slide Switch
+    -> RasPi3

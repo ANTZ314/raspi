@@ -1,0 +1,40 @@
+------------------------------------------------
+Remember to create virtual enviroment to work in:
+------------------------------------------------
+==============================================================================================
+PYTHON 2.7:
+-----------
+$ export WORKON_HOME=$HOME/.virtualenvs
+$ source /usr/local/bin/virtualenvwrapper.sh
+$ source ~/.bashrc
+$ mkvirtualenv cv
+------------------------------
+$ mkvirtualenv cv
+-OR-
+$ mkvirtualenv cv -p python2
+-OR-
+$ mkvirtualenv cv -p python3
+------------------------------
+$ deactivate
+==============================================================================================
+PYTHON3:
+--------
+Install Python3 Enviroments:
+$ sudo apt-get install -y python3-venv
+
+Make directory to work in Enviroment:
+$ mkdir environments
+$ cd environments
+
+Create an environment in this folder:
+$ python3 -m venv my_env
+
+Activate the Enviroment:
+$ source my_env/bin/activate
+
+-------------------
+$ deactivate
+==============================================================================================
+
+
+

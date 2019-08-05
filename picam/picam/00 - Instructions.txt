@@ -1,0 +1,29 @@
+
+=====================================
+	BASH INSTRUCTIONS
+=====================================
+After creating the bash file (.sh)
+navigate to file location
+
+$ chmod +x camer.sh
+$ ./camera.sh
+
+NOTE:
+raspistill -vf -hf -o
+	[-vf -> vertical flip]
+	[-hf -> horizontal flip]
+For a list of arguments, run:
+$ raspistill
+OR
+$ raspistill 2>&1 | less
+'q' to exit
+
+=====================================
+	    PYTHON
+=====================================
+
+
+=====================================
+	VIDEO PLAYBACK
+=====================================
+$ omxplayer video.h264

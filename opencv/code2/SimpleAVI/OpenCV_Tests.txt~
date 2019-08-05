@@ -1,0 +1,34 @@
+--------------------------------------------
+From Doc:
+Installing_OpenCV_Ubuntu.odt
+--------------------------------------------
+
+-> Folder:
+cd /home/antz411/Downloads/OpenCV_Linux/SimpleCPP
+
+-> Command:
+./DisplayImage /home.../File_Name.jpg
+
+-> Image:
+/home/antz411/Pictures/Favezz/KAORI_MOCHIDA.JPG
+
+============================================
+-> Setup Commands:
+cd opencv/opencv-3.0.0-alpha/samples/
+sudo cmake .
+sudo make -j $(nproc)
+
+-> Folder:
+cd /home/antz411/Downloads/OpenCV_Linux/opencv-3.0.0/samples/cpp
+
+-> Execute Commands:
+./cpp-example-facedetect lena.jpg
+./cpp-example-facedetect lena_group.png
+./cpp-example-houghlines pic1.png
+
+-> Images:
+lena.jpg
+lena_group.png
+
+============================================
+

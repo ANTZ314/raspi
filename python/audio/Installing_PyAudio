@@ -1,0 +1,40 @@
+------------------------
+Installing Spyder 2 & 3:
+------------------------
+sudo apt-get install python-qt4 python-sphinx python-numpy python-scipy python-matplotlib
+# recommended modules
+sudo easy_install ipython rope pyflakes pylint pep8 psutil
+sudo easy_install spyder
+# python 3
+sudo apt-get install python3-pyqt4 python3-sphinx python3-numpy python3-scipy python3-matplotlib
+sudo easy_install3 ipython rope pyint pep8 pyflakes psutil
+sudo easy_install3 spyder
+
+# python 2.7
+spyder
+# python 3
+spyder3
+
+-------------------------------
+Installing PyAudio & PortAudio:
+-------------------------------
+$ sudo apt-get install git
+
+$ sudo git clone http://people.csail.mit.edu/hubert/git/pyaudio.git
+
+$ sudo apt-get install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev
+['libportaudio0' NOT FOUND]
+
+$ sudo apt-get install portaudio19-dev
+
+$ sudo apt-get install python-dev
+
+$ cd pyaudio
+
+$ sudo python setup.py install
+
+-----
+NOTE:
+-----
+Pyaudio is not compatible with Python 2.7, and can only be run in Python 3 on Ubuntu
+Though it does seem to compile/miport fine on the RasPi with Python 2.7?

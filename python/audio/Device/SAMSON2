@@ -1,0 +1,47 @@
+==================
+CODE DESCRIPTIONS:
+==================
+-----------------------------------------------
+Device1.py:
+-----------------------------------------------
+Input Device id   0  -  HDA Intel PCH: 92HD93BXX Analog (hw:0,0)
+Output Device id  1  -  HDA Intel PCH: HDMI 0 (hw:0,3)
+Output Device id  2  -  HDA Intel PCH: HDMI 1 (hw:0,7)
+Output Device id  3  -  HDA Intel PCH: HDMI 2 (hw:0,8)
+Input Device id   4  -  sysdefault
+Output Device id  5  -  hdmi
+Input Device id   6  -  pulse
+Output Device id  6  -  pulse
+Input Device id   7  -  default
+Output Device id  7  -  default
+Selected device is  HDA Intel PCH: HDMI 0 (hw:0,3)
+Traceback (most recent call last):
+
+-----------------------------------------------
+Device2.py
+-----------------------------------------------
+(0, u'HDA Intel PCH: 92HD93BXX Analog (hw:0,0)', 2L)
+(1, u'HDA Intel PCH: HDMI 0 (hw:0,3)', 0L)
+(2, u'HDA Intel PCH: HDMI 1 (hw:0,7)', 0L)
+(3, u'HDA Intel PCH: HDMI 2 (hw:0,8)', 0L)
+(4, u'sysdefault', 128L)
+(5, u'hdmi', 0L)
+(6, u'pulse', 32L)
+(7, u'default', 32L)
+
+-----------------------------------------------
+lusb
+-----------------------------------------------
+Bus 002 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 004: ID 0c45:648b Microdia Integrated Webcam
+Bus 001 Device 003: ID 413c:8197 Dell Computer Corp. 
+Bus 001 Device 005: ID 046d:c05a Logitech, Inc. M90/M100 Optical Mouse
+Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 004: ID 17a0:0120 Samson Technologies Corp. Meteorite condenser microphone
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+
+
+-----------------------------------------------

@@ -1,0 +1,50 @@
+gr11.jpg
+Number of faces: 5
+gr0.jpg
+Number of faces: 5
+gr4.jpg
+Number of faces: 5
+gr5.jpg
+Number of faces: 5
+gr2.jpg
+Number of faces: 5
+gr10.png
+Number of faces: 5
+gr6.JPG
+Number of faces: 5
+gr1.jpg
+Number of faces: 5
+gr8.jpg
+Number of faces: 5
+gr12.jpg
+Number of faces: 5
+gr7.jpeg
+Number of faces: 5
+gr3.jpg
+Number of faces: 5
+==================
+gr11.jpg
+Number of faces: 5
+gr0.jpg
+Number of faces: 5
+gr4.jpg
+Number of faces: 5
+gr5.jpg
+Number of faces: 5
+gr2.jpg
+Number of faces: 5
+gr10.png
+Number of faces: 5
+gr6.JPG
+Number of faces: 5
+gr1.jpg
+Number of faces: 5
+gr8.jpg
+Number of faces: 5
+gr12.jpg
+Number of faces: 5
+gr7.jpeg
+Number of faces: 5
+gr3.jpg
+Number of faces: 5
+==================

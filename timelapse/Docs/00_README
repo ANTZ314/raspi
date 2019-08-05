@@ -1,0 +1,39 @@
+========================
+FUNCTIONAL DESCRIPTION:
+========================
+
+* STANDBYE MODE:
+	-> Blink RED LED Continuously
+	
+	-> If BTN pressed:
+		=> Check if images in ´lapse´ folder
+			--> if YES:	Compile to video
+						Way of extracting the Video file?
+						Delete all previous image files in ´lapse´ folder
+			--> If NO:
+						Clear GPIOs and return StandBye Mode
+			
+		=> Clear all GPIOS and Exit safely (return to standbye?)
+		
+* CAPTURE MODE:
+	-> Blink GREEN LED Continuously
+	
+	-> If BTN pressed:
+		=> Indicate with BLUE blink 3 times
+		
+		=> Start time-lapse capturing images (1 per minute)
+		
+		=> Indicate each capture with quick BLUE blink (150ms)
+		
+	-> If BTN pressed during capture:
+		=> Stop capturing images
+		
+		=> Return to Capture Standbye (Blink GREEN)
+		
+============
+STILL TO DO:
+============
+
+* Long press in Standbye mode to CLEAR ALL image files in ´lapse´ folder?
+
+* Convert all input triggers to flags

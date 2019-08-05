@@ -1,0 +1,31 @@
+-----------------------
+Run the code like this:
+-----------------------
+Remember to create virtual enviroment to work in:
+------------------------------------------------
+$ export WORKON_HOME=$HOME/.virtualenvs
+$ source /usr/local/bin/virtualenvwrapper.sh
+$ source ~/.bashrc
+$ mkvirtualenv cv
+------------------------------
+$ mkvirtualenv cv
+-OR-
+$ mkvirtualenv cv -p python2
+-OR-
+$ mkvirtualenv cv -p python3
+------------------------------
+
+------------------------------------------------
+To run the OpenCV3 version, backups:
+------------------------------------------------
+$ python faceCnt1.py /home/antz/0_CV3/pics/gr0.jpg haarcascade_frontalface_default.xml
+$ python faceCnt2.py /home/antz/0_CV3/pics/gr0.jpg
+
+------------------------------------------------
+To run main: (single image)
+------------------------------------------------
+$ python Face.py
+
+==============================================================================================
+
+----------------------------------------------------------------------------------------------

@@ -1,11 +1,11 @@
 
 
---------------------------------------
+----------------------------------------------------------------------------
 $ sudo apt-get purge wolfram-engine
 $ sudo apt-get purge libreoffice*
 $ sudo apt-get clean
 $ sudo apt-get autoremove
---------------------------------------
+----------------------------------------------------------------------------
 
 sudo apt-get update && sudo apt-get upgrade
 
@@ -22,6 +22,18 @@ sudo apt-get install libcanberra-gtk*
 sudo apt-get install libatlas-base-dev gfortran
 
 sudo apt-get install python3-dev
+
+----------------------------------------------------------------------------
+Add to .profile:
+
+sudo nano ~/.profile
+
+# virtualenv and virtualenvwrapper
+export WORKON_HOME=$HOME/.virtualenvs
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+source /usr/local/bin/virtualenvwrapper.sh
+
+----------------------------------------------------------------------------
 
 cd ~
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.0.0.zip

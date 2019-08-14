@@ -24,6 +24,7 @@ sudo apt-get install libatlas-base-dev gfortran
 sudo apt-get install python3-dev
 
 ----------------------------------------------------------------------------
+
 Add to .profile:
 
 sudo nano ~/.profile
@@ -38,6 +39,11 @@ source /usr/local/bin/virtualenvwrapper.sh
 cd ~
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.0.0.zip
 wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.0.0.zip
+
+-----------------------------------
+-> If certificate not trusted add:
+--no-check-certificate
+-----------------------------------
 
 unzip opencv.zip
 unzip opencv_contrib.zip

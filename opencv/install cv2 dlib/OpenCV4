@@ -88,11 +88,12 @@ INCREASE SWAP FILE BEFORE 4 CORE COMPILATION:
 ---------------------------------------------
 sudo nano /etc/dphys-swapfile
 
----> Change the following:
+---> Add the following:
 
 # set size to absolute value, leaving empty (default) then uses computed value
 # you most likely don't want this, unless you have an special disk situation
 # CONF_SWAPSIZE=100
+# CONF_SWAPSIZE=1024
 CONF_SWAPSIZE=2048
 
 ---> Restart the swap file:
@@ -109,19 +110,26 @@ sudo make install
 sudo ldconfig
 
 ==================================================================
-SymLink:
+FINISH:
+-------
+
+-> Return swapfile & memory split to original:
+
+sudo nano /etc/dphys-swapfile
+CONF_SWAPSIZE=100
+
+memory split = 128
+
+
+==================================================================
+If still not found create SymLink in main folder:
+-------------------------------------------------
 --> Check for cv2 install path:
 ls /usr/local/python/cv2/python-3.5/
 
 --> Create Symlink:
 ln -s /usr/local/python/cv2/python-3.5/cv2.cpython-35m-arm-linux-gnueabihf.so cv2.so
 ==================================================================
-sudo nano /etc/dphys-swapfile
-
-# set size to absolute value, leaving empty (default) then uses computed value
-# you most likely don't want this, unless you have an special disk situation
-CONF_SWAPSIZE=100
-# CONF_SWAPSIZE=2048
 
 ==================================================================
 CHECK:
@@ -133,3 +141,8 @@ $ python
 '4.0.0'
 >>> exit()
 ==================================================================
+
+-----------------
+SSL errors solve:
+-----------------
+sudo -H pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org <package_name>

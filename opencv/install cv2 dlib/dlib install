@@ -40,11 +40,36 @@ sudo apt-get install libgtk-3-dev
 sudo apt-get install libboost-all-dev
 
 --------------------------------------------------------------
-pip install numpy
-pip install scipy
-pip install scikit-image
+Dependencies:
+-------------
+sudo -H pip3 install numpy
+sudo -H pip3 install scipy
+sudo -H pip3 install scikit-image
 
-pip install dlib
+
+TRUST ISSUES:
+-------------
+sudo -H pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip scipy
+sudo -H pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip scikit-image
+
+
+Finally (takes long...):
+------------------------
+sudo -H pip3 install dlib
+sudo -H pip3 install face_recognition
+
+
+TRUST ISSUES:
+-------------
+(python2)
+sudo -H pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip dlib
+
+
+face_recognition: MEMORY ISSUES:
+--------------------------------
+(python2)
+sudo -H pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip face_recognition
+
 
 --------------------------------------------------------------
 

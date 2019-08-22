@@ -13,11 +13,13 @@ import argparse
 import pickle
 import cv2
 
-# path to encodings.pickle file 										 - Change path for RasPi
-pickleFile = "/home/antz/GIT31/OpenCV/FaceRec/faceReact/encodings.pickle"
-# path to newly captured image or previously stored image  				 - Change path for RasPi
-faceImage = "/home/antz/GIT31/OpenCV/FaceRec/faceReact/dataset/00000.png"
-detection = "cnn"			# "hog" for Raspberry Pi
+# Path to encodings.pickle file:
+pickleFile = "/home/pi/Documents/rasFaceRec/encodings.pickle"
+# Path to newly captured image or previously stored image:
+faceImage = "/home/pi/Documents/rasFaceRec/dataset/00000.png"
+# Detection method:	
+detection = "hog"			# Raspberry Pi
+
 
 class RecogClass:
 	def __init__(self, **kwargs):
@@ -36,7 +38,7 @@ class RecogClass:
 		# to each face in the input image, then compute the facial embeddings
 		# for each face
 		print("[INFO] recognizing faces...")
-		boxes = face_recognition.face_locations(rgb, model="cnn")
+		boxes = face_recognition.face_locations(rgb, model="hog")
 		encodings = face_recognition.face_encodings(rgb, boxes)
 
 		# initialize the list of names for each face detected

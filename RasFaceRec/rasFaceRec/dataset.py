@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Description:
-Will use opencv to find & frame instances of faces being recognised, 
-then use keyboard 'k' to manually capture training samples of 
-the faces you want to train with.
+Will use opencv to find & frame instances of faces being recognised, then use keyboard to manually
+capture training samples of the faces you want to train with.
 
 Usage:
 python3 face_dataset.py --cascade haarcascade_frontalface_default.xml --output dataset

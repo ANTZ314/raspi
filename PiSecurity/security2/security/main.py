@@ -192,8 +192,6 @@ def main():
 						## DATA STORE TO USB ##
 						#######################
 						if store_flg == 1:
-							LEDS.Blink_Red1()
-							LEDS.Blink_Red1()
 							## If images folder Empty ##
 							if os.listdir(path2) == []:					# pass path to USB
 								print("FOLDER EMPTY")
@@ -203,13 +201,18 @@ def main():
 								USB.usb_put(path1, path2)				# Move to USB destination
 								print("Moved to USB")
 							
-							# Once complete -> back to stanbye mode
+							## Once complete -> back to stanbye mode ##
 							time.sleep(2)								# pause for message
 							store_flg = not store_flg					# revert storage flag
 							option1 = 1									# flag to starting state
 							option2 = 1									# flag to starting state
 							confirm = 0									# flag to starting state
 							start_flg = 1								# Back to start menu
+							## Inditcate copy completion ##
+							LEDS.Blink_Red1()
+							LEDS.Blink_Red1()
+							## Clear image counter ##
+							img_cnt = 0
 						else:
 							LEDS.Blink_Cyan1()							# Indicate Selection
 					

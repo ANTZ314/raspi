@@ -6,7 +6,12 @@
 *NOTE - after images copied to USB need to go back to zero on the image naming* 
 
 ### Run at boot:
-sudo crontab -e
+
+	sudo crontab -e
+
+Add the following to run (# to comment out):
+
+	python master.py
 
 --------------------------------
 [Security System](https://www.pyimagesearch.com/2015/06/01/home-surveillance-and-motion-detection-with-the-raspberry-pi-python-and-opencv/)

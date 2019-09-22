@@ -1,0 +1,30 @@
+=======================================================================================
+Copy to and from Raspberry Pi:
+=======================================================================================
+Copy from Pi:
+scp pi@192.168.1.102:/home/pi/file.ext /home/antz/Desktop/IoT
+
+Copy to Pi:
+scp /home/antz/Desktop/IoT/picopy.txt pi@192.168.1.102:/home/pi/
+
+
+=======================================================================================
+GCLOUD & PUB/SUB directly:
+=======================================================================================
+--------------------------
+PUBSUB - Publish to RasPi:
+https://cloud.google.com/pubsub/docs/quickstart-console
+
+RasPi sub from GCP command:
+gcloud pubsub subscriptions pull --auto-ack projects/pi-iot-project-251309/subscriptions/MySub
+
+
+--------------------------
+PUBSUB - Publish to GCP:
+https://cloud.google.com/pubsub/docs/pubsub-dataflow
+
+
+--------------------------
+To Authorise:
+Login to gcloud -> "gcloud auth login --brief" -> then copy link to browser:
+

@@ -1,0 +1,4 @@
+
+# To rename ALL FILES sequencially numbered with the same extension:
+# Go to the directory and run this line:
+ls -v | cat -n | while read n f; do mv -n "$f" "$n.ext"; done

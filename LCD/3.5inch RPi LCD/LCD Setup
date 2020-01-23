@@ -1,0 +1,49 @@
+
+==============
+Setup the LCD:
+==============
+
+---------------
+Hardware Setup:
+---------------
+sudo raspi-config
+Boot Options -> Desktop/CLI -> B4 Desktop Autologin Desktop GUI
+Interfacing options -> enable SPI
+Interfacing options -> enable SSH
+Interfacing options -> enable Camera
+
+----------------------------------
+Copy folder to Pi and run via SSH:
+----------------------------------
+scp -r /home/antz/Desktop/omnigo/piZero/z hardware/LCD/LCD-show-180331.tar.gz pi@19.168.8.100:/home/pi/
+ssh pi@192.168.8.100
+ls -l
+
+tar xvf LCD-show-*.tar.gz
+cd LCD-show/
+sudo ./LCD35-show
+wait....
+
+--------------------------
+To revert back to Monitor:
+--------------------------
+cd LCD-show/ 
+sudo ./LCD-hdmi
+
+
+
+
+---------------------
+3.5" RPi LCD TFT:
+---------------------
+MicroRobotic:
+https://www.robotics.org.za/W15811
+
+Product Info:
+https://www.waveshare.com/3.5inch-rpi-lcd-c.htm
+
+Getting Started:
+https://www.waveshare.com/wiki/3.5inch_RPi_LCD_(C)
+
+RPi Setup:
+https://www.raspberrypi.org/forums/viewtopic.php?t=143581

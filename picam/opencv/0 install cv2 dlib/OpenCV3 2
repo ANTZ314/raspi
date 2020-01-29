@@ -1,0 +1,123 @@
+======================================================
+Install OpenCV3 on RasPi3:
+--------------------------
+http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/
+======================================================
+$ sudo apt-get update
+$ sudo apt-get upgrad
+
+$ sudo apt-get install build-essential cmake pkg-config
+
+$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
+
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+$ sudo apt-get install libxvidcore-dev libx264-dev
+
+$ sudo apt-get install libgtk2.0-dev
+
+$ sudo apt-get install libatlas-base-dev gfortran
+
+$ sudo apt-get install python2.7-dev python3-dev
+
+$ cd ~
+$ wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.1.0.zip
+$ unzip opencv.zip
+
+$ wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.1.0.zip
+$ unzip opencv_contrib.zip
+
+$ wget https://bootstrap.pypa.io/get-pip.py
+$ sudo python get-pip.py
+
+$ sudo pip install virtualenv virtualenvwrapper
+$ sudo rm -rf ~/.cache/pip
+
+-------------------------------------------------------------------------------------
+update our ~/.profile  file to include the following lines at the bottom of the file:
+-------------------------------------------------------------------------------------
+# virtualenv and virtualenvwrapper
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+-------------------------------------------------------------------------------------
+You can force a reload of your ~/.profile  file by:
+
+1.) Logging out and then logging back in.
+2.) Closing a terminal instance and opening up a new one
+3.) Or my personal favorite, just use the source  command:
+	$ source ~/.profile
+-------------------------------------------------------------------------------------
+
+$ mkvirtualenv cv -p python2
+ - OR - 
+$ mkvirtualenv cv -p python3
+
+[After that, you can use workon  and you’ll be dropped down into your virtual environment:]
+
+$ source ~/.profile
+$ workon cv
+
+[see the text (cv) before username]
+
+$ pip install numpy
+
+$ workon cv		<-- make sure in the virtual enviroment
+
+$ cd ~/opencv-3.1.0/
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.1.0/modules \
+    -D BUILD_EXAMPLES=ON ..
+
+Compiles using 4 cores (j4), may cause errors:
+$ make -j4
+
+If errors during compilation, use 1 core:
+$ make clean
+$ make
+
+$ sudo make install
+$ sudo ldconfig
+
+---------------------------------------------------------
+Finish installation - Python 2.7
+---------------------------------------------------------
+OpenCV should now be installed in 	   /usr/local/lib/python2.7/site-pacakges. 
+[In some cases, OpenCV can be installed in /usr/local/lib/python2.7/dist-packages]
+You can verify this using the ls  command:
+
+$ ls -l /usr/local/lib/python2.7/site-packages/
+total 1852
+-rw-r--r-- 1 root staff 1895772 Mar 20 20:00 cv2.so
+
+Final step (2.7):
+$ cd ~/.virtualenvs/cv/lib/python2.7/site-packages/
+$ ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
+
+---------------------------------------------------------
+Finish installation - Python 3
+---------------------------------------------------------
+$ ls -l /usr/local/lib/python3.4/site-packages/
+total 1852
+-rw-r--r-- 1 root staff 1895932 Mar 20 21:51 cv2.cpython-34m.so
+
+Final step (3.4):
+$ cd ~/.virtualenvs/cv/lib/python3.4/site-packages/
+$ ln -s /usr/local/lib/python3.4/site-packages/cv2.so cv2.so
+
+---------------------------------------------------------
+TESTING:
+---------------------------------------------------------
+$ source ~/.profile 
+$ workon cv
+$ python
+>>> import cv2
+>>> cv2.__version__
+'3.1.0'
+>>>
+
+Once OpenCV has been installed, you can remove both the opencv-3.1.0  and opencv_contrib-3.1.0  directories to free up a bunch of space on your disk:
+$ rm -rf opencv-3.1.0 opencv_contrib-3.1.0
+

@@ -1,0 +1,41 @@
+
+
+
+GITHUB - Python (and MicroPython) APDS-9960 Library:
+https://github.com/liske/python-apds9960
+https://github.com/sparkfun/SparkFun_APDS-9960_Sensor_Arduino_Library
+
+
+RasPi - APDS9960 (circuitpython - install & test):
+https://learn.adafruit.com/adafruit-apds9960-breakout/circuitpython
+
+
+RasPi Python library for the APDS-9960:
+https://pypi.org/project/apds9960/
+
+
+RasPi I2C APDS9960 interface:
+https://pypi.org/project/RPi.apds9960/
+
+
+Adafruit APDS9960 breakout:
+https://learn.adafruit.com/adafruit-apds9960-breakout/overview
+
+
+Wiring the APDS 9930 Ambient Light Sense:
+https://www.instructables.com/id/Wiring-the-APDS-9930-Ambient-Light-Sense-APDS-9960/
+http://www.14core.com/wiring-the-apds-9930-ambient-light-sense-apds-9960-rgb-gesture-sensor-with-microcontroller/
+
+
+=============================================================================
+Install on RasPi:
+sudo pip3 install apds9960
+
+i2cdetect -y 1
+
+test_ambient.py
+test_gesture.py
+test_prox.py
+=============================================================================
+
+

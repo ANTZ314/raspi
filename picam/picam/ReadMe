@@ -1,0 +1,17 @@
+====================
+OpenCV and PiCamera:
+====================
+
+$ source ~/.profile
+$ workon cv
+
+$ pip install "picamera[array]"
+
+------------------------------
+Create: "test_image.py"
+Run: 	python2 test_image.py
+------------------------------
+
+
+Link:
+http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/

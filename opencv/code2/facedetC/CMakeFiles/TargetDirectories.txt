@@ -1,3 +1,0 @@
-/home/antz/Documents/OpenCV_Linux/ProjectExamples/FaceDetect/CMakeFiles/edit_cache.dir
-/home/antz/Documents/OpenCV_Linux/ProjectExamples/FaceDetect/CMakeFiles/rebuild_cache.dir
-/home/antz/Documents/OpenCV_Linux/ProjectExamples/FaceDetect/CMakeFiles/FaceDet.dir

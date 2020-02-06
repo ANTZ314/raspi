@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Make sure installed:
+Dependencies:
+opencv2
 pip install "picamera[array]
 
 Description: 

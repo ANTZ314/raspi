@@ -1,0 +1,39 @@
+========================
+Clone SD Card:
+========================
+
+------------------
+Check Drive Name:
+------------------
+sudo fdisk -l
+
+------------------
+Create Image:
+------------------
+sudo dd if=/dev/sdb of=~/raspbian_backup.img
+-OR-
+sudo dd if=/dev/mmcblk0 bs=4M of=~/Desktop/raspbian_backup.img
+
+
+
+
+========================
+Restore SD Card:
+========================
+
+------------------
+Check Drive Name:
+------------------
+sudo mount | grep sdb 			<- should be blank
+sudo fdisk -l					<- check mounted device
+
+------------------
+Unmount SD Card:
+------------------
+If mounted, unmount all:
+sudo umount /dev/sdb1 /dev/sdb2 /dev/sdb3 /dev/sdb4
+
+------------------
+Write the Image:
+------------------
+sudo dd if=~/raspbian_backup.img of=/dev/sdb

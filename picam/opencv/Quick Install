@@ -1,0 +1,28 @@
+===============================
+Quick Install OpenCV - PiZero?:
+===============================
+Step1 - In code box below Select All then right click copy on highlighted command.
+Step2 - On a logged in RPI SSH terminal session right click paste then Enter to Run setup.sh script
+
+Code:
+
+$ curl -L https://raw.github.com/pageauc/opencv3-setup/master/setup.sh | bash 
+
+curl comand will run the GitHub setup.sh script that will install files and configure into the ~/opencv3-setup folder.
+
+
+
+The cv3-install.menu.sh script and menu picks will:
+---------------------------------------------------
+* Validate that OPENCV_VER variable setting is correct
+* Create cv3-log.txt If It Does Not Exist. The log will record system information, date/time and details of various steps including execution times
+* Update/upgrade Raspbian for Raspberry Pi
+* Install build dependencies
+* Download opencv3 source zip files and unzip
+* Auto Detect RPI3 and set NEON compile directive for cmake to enhance cv3 performance
+* Run cmake to configure build
+* Temporarily Increase Swap memory to 1024 MB During make
+* Automatically Sets number of make cores. -j2 cores if 1 GB RAM detected, otherwise -j1 core directive is set.
+* Run make to Compile opencv3 source code
+* Run optional make clean to clear build directory to force full recompile.
+* DELETE menu pick to optionally recover disk space by deleting the cv3-tmp folder containing opencv source and build files and folders.

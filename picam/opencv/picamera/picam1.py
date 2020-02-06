@@ -4,7 +4,8 @@ Description:
 Opens the camera module, captures single frame and displays
 Press any key to kill
 
-First use:
+Dependencies:
+opencv2
 pip install "picamera[array]
 
 Run: 

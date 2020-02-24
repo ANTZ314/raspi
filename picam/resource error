@@ -1,0 +1,10 @@
+
+==============================================
+NOTE:
+==============================================
+IF YOU GET:
+"Failed to enable connection: Out of resources"
+
+MOVE THE INITIALISER UP TO GLOBAL (outside main()):
+
+"camera = PiCamera()"

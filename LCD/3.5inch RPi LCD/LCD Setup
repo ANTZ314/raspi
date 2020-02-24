@@ -1,11 +1,11 @@
 
-==============
-Setup the LCD:
-==============
+========================
+Setup RPi LCD 3.5":
+========================
 
----------------
+========================
 Hardware Setup:
----------------
+========================
 sudo raspi-config
 Boot Options -> Desktop/CLI -> B4 Desktop Autologin Desktop GUI
 Interfacing options -> enable SPI
@@ -24,12 +24,35 @@ cd LCD-show/
 sudo ./LCD35-show
 wait....
 
---------------------------
+===========================
 To revert back to Monitor:
---------------------------
+===========================
 cd LCD-show/ 
 sudo ./LCD-hdmi
 
+
+========================
+LCD orientation:
+========================
+sudo nano /boot/config.txt
+
+Change [dtoverlay=waveshare35a]:
+dtoverlay=waveshare35a:rotate=180	(Rotate 90)
+dtoverlay=waveshare35a:rotate=270	(Rotate 180)
+dtoverlay=waveshare35a:rotate=0		(Rotate 270)
+
+
+========================
+Show Screen Resolution:
+========================
+fbset -s
+
+
+========================
+Camera test:
+========================
+vcgencmd get_camera 			<-- supported = 1, detected = 1
+raspistill -o pic.jpg
 
 
 

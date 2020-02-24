@@ -2,11 +2,14 @@
 Quick Install OpenCV - PiZero?:
 ===============================
 
+
 sudo pip install --upgrade pip
 
 sudo apt install python-opencv
 
 
+======
+OTHER:
 ---------------------------------------------------
 Step1 - In code box below Select All then right click copy on highlighted command.
 Step2 - On a logged in RPI SSH terminal session right click paste then Enter to Run setup.sh script

@@ -8,3 +8,12 @@ IF YOU GET:
 MOVE THE INITIALISER UP TO GLOBAL (outside main()):
 
 "camera = PiCamera()"
+
+
+==============================================
+Simple Camera Test:
+==============================================
+
+vcgencmd get_camera
+
+raspistill -o cam.jpg

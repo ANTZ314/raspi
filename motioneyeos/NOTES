@@ -1,0 +1,62 @@
+------------------
+MOTIONEYEOS NOTES:
+------------------
+
+* Download latest "motioneyeos" image
+* Use disk creator to write image to sd card
+* Once disk image is created, eject and reinsert
+* Copy wpa_supplicant.conf directly into the directory with "bootcode.bin" 
+
+find ip address of motioneye unit
+open the ip address and login
+	-> admin / no_pswrd
+Set new password first
+
+
+--------------------------------
+wpa_supplicant.conf that WORKED:
+--------------------------------
+
+country=us
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+ scan_ssid=1
+ ssid="SUPER_FLY_FOR_A_WIFI"
+ psk="Mexicant314159*"
+}
+
+------------------
+
+country=US
+update_config=0
+ctrl_interface=DIR=/var/run/wpa_supplicant
+
+network={
+	scan_ssid=1
+	key_mgmt=WPA2-PSK
+	psk= "Mexicant314159*"
+	ssid= "SUPER_FLY_FOR_A_WIFI"
+}
+
+------------------
+
+country=us
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+ scan_ssid=1
+ ssid="SUPER_FLY_FOR_A_WIFI"
+ psk="Mexicant314159*"
+}
+
+------------------
+
+OTHER COUNTRY CODES:
+GB (United Kingdom)
+FR (France)
+DE (Germany)
+US (United States)
+SE (Sweden)

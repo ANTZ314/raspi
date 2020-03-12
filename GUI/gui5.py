@@ -43,6 +43,7 @@ def main():
 					camera.start_preview()
 					sleep(5)
 					camera.stop_preview()
+					camera.close()
 				
 					scanButton["text"] = "SCAN ON"
 					btn_state1 = not btn_state1
@@ -74,6 +75,7 @@ def main():
 			
 			def exitProgram():
 				print("Exit Button pressed")
+				camera.close()
 				win.quit()
 			
 			# Create the window
@@ -85,7 +87,6 @@ def main():
 			# Window title and dimensions
 			win.title("OMNIGO")
 			win.geometry('480x320')
-			win.configer(background="darkblue")
 			
 			# Spacer
 			label_1 = Label(win, text="   ", font = "Helvetica 10")

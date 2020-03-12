@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Description:
-Tkinter based 3 button GUI
-1 button - Test Camera
-1 button - 
+Tkinter based 3 button GUI test with camera module
 
 USAGE:
 python gui2.py

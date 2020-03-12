@@ -1,4 +1,4 @@
 Traceback (most recent call last):
-  File "gui3.py", line 89, in main
-    if sanQR == True:
-UnboundLocalError: local variable 'sanQR' referenced before assignment
+  File "gui10.py", line 131, in main
+    text	= "Count: {}".format(Cnt),
+NameError: global name 'Cnt' is not defined

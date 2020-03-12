@@ -1,28 +1,37 @@
-# -*- coding: utf-8 -*-
-"""
-Description:
-Tkinter based GUI - Lable & 2 buttons
+from Tkinter import *
+import tkFont
+import RPi.GPIO as GPIO
 
-"""
-from tkinter import Tk, Label, Button
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(40, GPIO.OUT)
+GPIO.output(40, GPIO.LOW)
 
-class MyFirstGUI:
-    def __init__(self, master):
-        self.master = master
-        master.title("A simple GUI")
+win = Tk()
 
-        self.label = Label(master, text="This is our first GUI!")
-        self.label.pack()
+myFont = tkFont.Font(family = 'Helvetica', size = 36, weight = 'bold')
 
-        self.greet_button = Button(master, text="Greet", command=self.greet)
-        self.greet_button.pack()
+def ledON():
+	print("LED button pressed")
+	if GPIO.input(40) :
+ 		GPIO.output(40,GPIO.LOW)
+		ledButton["text"] = "LED ON"
+	else:
+		GPIO.output(40,GPIO.HIGH)
+                ledButton["text"] = "LED OFF"
 
-        self.close_button = Button(master, text="Close", command=master.quit)
-        self.close_button.pack()
+def exitProgram():
+	print("Exit Button pressed")
+        GPIO.cleanup()
+	win.quit()	
 
-    def greet(self):
-        print("Greetings!")
 
-root = Tk()
-my_gui = MyFirstGUI(root)
-root.mainloop()
+win.title("First GUI")
+win.geometry('800x480')
+
+exitButton  = Button(win, text = "Exit", font = myFont, command = exitProgram, height =2 , width = 6) 
+exitButton.pack(side = BOTTOM)
+
+ledButton = Button(win, text = "LED ON", font = myFont, command = ledON, height = 2, width =8 )
+ledButton.pack()
+
+mainloop()

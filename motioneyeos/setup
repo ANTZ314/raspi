@@ -24,7 +24,7 @@ ctrl_interface=/var/run/wpa_supplicant
 network={
  scan_ssid=1
  ssid="SUPER_FLY_FOR_A_WIFI"
- psk="Mexicant314159*"
+ psk="password*"
 }
 
 ------------------

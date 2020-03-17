@@ -1,62 +1,28 @@
-------------------
+==================
 MOTIONEYEOS NOTES:
-------------------
+==================
 
-* Download latest "motioneyeos" image
-* Use disk creator to write image to sd card
-* Once disk image is created, eject and reinsert
-* Copy wpa_supplicant.conf directly into the directory with "bootcode.bin" 
+-----------------
+DropBox Settings:
+-----------------
+MotionEye:
+	Select File Storage Section
+	Enable Upload Media Files, Upload Pictures and Upload Movies
+	On Upload Service. Select Dropbox.
+	On Location. Select Folder on Dropbox for save video and image
+Dropbox:
+	Click on Obtain Key. It will go to Dropbox for generate Authorization key.
+MotionEye:
+	Allow Authorization. and copy Authorization key.
+	Enter Authorization key on Authorization key form and click Test service button
+	After success - click on apply
 
-find ip address of motioneye unit
-open the ip address and login
-	-> admin / no_pswrd
-Set new password first
+-----------------
+Motion Settings:
+-----------------
 
 
---------------------------------
-wpa_supplicant.conf that WORKED:
---------------------------------
 
-country=us
-update_config=1
-ctrl_interface=/var/run/wpa_supplicant
-
-network={
- scan_ssid=1
- ssid="SUPER_FLY_FOR_A_WIFI"
- psk="Mexicant314159*"
-}
-
-------------------
-
-country=US
-update_config=0
-ctrl_interface=DIR=/var/run/wpa_supplicant
-
-network={
-	scan_ssid=1
-	key_mgmt=WPA2-PSK
-	psk= "Mexicant314159*"
-	ssid= "SUPER_FLY_FOR_A_WIFI"
-}
-
-------------------
-
-country=us
-update_config=1
-ctrl_interface=/var/run/wpa_supplicant
-
-network={
- scan_ssid=1
- ssid="SUPER_FLY_FOR_A_WIFI"
- psk="Mexicant314159*"
-}
-
-------------------
-
-OTHER COUNTRY CODES:
-GB (United Kingdom)
-FR (France)
-DE (Germany)
-US (United States)
-SE (Sweden)
+-----------------
+Video Settings:
+-----------------

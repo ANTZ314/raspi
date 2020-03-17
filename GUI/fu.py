@@ -2,6 +2,7 @@
 """
 Description:
 Tkinter based button GUI test
+Full screen window
 
 USAGE:
 python gui1.py
@@ -49,8 +50,13 @@ def main():
 
 			myFont = tkFont.Font(family = 'Helvetica', size = 36, weight = 'bold')
 
-			win.title("First GUI")
-			win.geometry('800x480')
+			#win_width  = win.winfo_screenwidth()
+			#win_height = win.winfo_screenheight()
+
+			win.title("FUCKER")
+			win.attributes("-fullscreen", True)
+			#win.geometry("%dx%d+0+0" % (win_width, win_height))
+			#win.geometry('800x480')
 			win.configure(background = "darkblue")
 
 			# Spacer
@@ -84,8 +90,8 @@ def main():
 			#label_2 = Label(win, text="spacer", font = "Helvetica 10")
 			#label_2.pack(side = BOTTOM)
 			
-
-			mainloop()
+			
+			win.mainloop()
 
 			#print("DONE!!")					# Guess what this does??
 			#sys.exit(0)						# exit properly

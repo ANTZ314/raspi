@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Description:
-Tkinter based GUI - 3 button print to console when clicked + Exit
-
+Tkinter based 3 button GUI test
 
 USAGE:
 python gui2.py

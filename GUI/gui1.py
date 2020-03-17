@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Description:
-Tkinter based GUI - 2 button example 
+Tkinter based button GUI test
 
 USAGE:
 python gui1.py

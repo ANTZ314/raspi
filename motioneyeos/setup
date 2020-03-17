@@ -12,6 +12,7 @@ open the ip address and login
 	-> admin / no_pswrd
 Set new password first
 
+
 --------------------------------
 wpa_supplicant.conf that WORKED:
 --------------------------------

@@ -1,0 +1,76 @@
+
+========================
+TouchScreen Calibration:
+========================
+[https://darwindelacruz.wordpress.com/2018/06/27/how-to-calibrate-a-3-5-tft-lcd-for-raspberry-pi-2-3-b/]
+
+sudo apt-get install -y xinput-calibrator
+
+* Run on Pi/LCD hardware:
+sudo DISPLAY=:0.0 xinput_calibrator
+
+* Returns (4x) X-Y cooordinates:
+
+* Insert the entire below section into conf file:
+sudo nano /usr/share/X11/xorg.conf.d/99-calibration.conf
+
+---------------------------------------------------------------------------------
+Code Run:
+---------
+Section "InputClass"
+	Identifier	"calibration"
+	MatchProduct	"ADS7846 Touchscreen"
+	Option	"MinX"	"22414"
+	Option	"MaxX"	"22232"
+	Option	"MinY"	"49185"
+	Option	"MaxY"	"48912"
+	Option	"SwapXY"	"1" # unless it was already set to 1
+	Option	"InvertX"	"1"  # unless it was already set
+	Option	"InvertY"	"1"  # unless it was already set
+EndSection
+
+---------------------------------------------------------------------------------
+Forum:
+---------
+Section "InputClass"
+	Identifier	"calibration"
+	MatchProduct	"ADS7846 Touchscreen"
+	Option	"Calibration"	"22414 22232 49185 48912"
+	Option	"SwapAxes"	"1"		# 0-90, 1-180
+EndSection
+
+---------------------------------------------------------------------------------
+Previous:
+---------
+Section "InputClass"
+        Identifier      "calibration"
+        MatchProduct    "ADS7846 Touchscreen"
+        Option  "Calibration"   "3932 300 294 3801"
+        Option  "SwapAxes"      "1"
+        Option "EmulateThirdButton" "1"
+        Option "EmulateThirdButtonTimeout" "1000"
+        Option "EmulateThirdButtonMoveThreshold" "300"
+EndSection
+
+---------------------------------------------------------------------------------
+LINKS:
+------
+https://cdn-learn.adafruit.com/downloads/pdf/adafruit-pitft-3-dot-5-touch-screen-for-raspberry-pi.pdf
+
+https://www.tme.eu/Document/b909b7ce9f821995846d99a04d4c46f5/WSH-12287.pdf
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=171859
+
+https://www.spotpear.com/learn/EN/raspberry-pi/Raspberry-Pi-LCD/Raspberry-Pi-_Rotate-the-screen-display.html
+
+https://darwindelacruz.wordpress.com/2018/06/27/how-to-calibrate-a-3-5-tft-lcd-for-raspberry-pi-2-3-b/
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=205894
+
+
+OTHER:
+------
+
+https://www.circuitbasics.com/raspberry-pi-touchscreen-calibration-screen-rotation/
+
+---------------------------------------------------------------------------------

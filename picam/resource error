@@ -1,21 +1,8 @@
 
 ==============================================
-NOTES ON CAMERA ERRORS:
+NOTE:
 ==============================================
-
--------------------
-Simple Camera Test:
--------------------
-
-vcgencmd get_camera
-
-raspistill -o cam.jpg
-
-
-
--------------------
 IF YOU GET:
--------------------
 "Failed to enable connection: Out of resources"
 
 MOVE THE INITIALISER UP TO GLOBAL (outside main()):
@@ -23,3 +10,10 @@ MOVE THE INITIALISER UP TO GLOBAL (outside main()):
 "camera = PiCamera()"
 
 
+==============================================
+Simple Camera Test:
+==============================================
+
+vcgencmd get_camera
+
+raspistill -o cam.jpg

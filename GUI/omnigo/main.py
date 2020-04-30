@@ -5,11 +5,7 @@ Author:
 	Antony Smith
 	
 Description:
-	Main control omnigo IoT project
-	Tkinter GUI with 2 function buttons and one Exit
-	Camera based QR code reader + store data to CSV file
-	APDS9960 Gesture sensor used for counting up/down
-	Count displayed real-time on GUI - using threading
+	Main control class for omnigo IoT project
 
 Includes:
 	apds9960 gesture sensor counting method 			- function outside "main"
@@ -233,10 +229,12 @@ def main():
 					print ("Final Board Count: {}".format(Cnt))
 			
 			## Intialise both Threads (not started yet) ##
-			t1 = threading.Thread(target=get_gesture)
-			t2 = threading.Thread(target=QR_Scan)	
+			threads = []							# create thread list
 			thr1 = 0								# thread 1 flag
 			thr2 = 0								# thread 2 flag
+			
+			#t1 = threading.Thread(target=get_gesture)
+			#t2 = threading.Thread(target=QR_Scan)	
 			
 			##############################
 			## BUTTON: EMPLOYEE ID SCAN ##
@@ -245,6 +243,13 @@ def main():
 				global thr2
 				global btn_state1
 				
+				## Start new thread each time ##
+				if thr2 == 0:
+					t1 = threading.Thread(target=QR_Scan)	# Not started yet
+					threads.append(t1)						# for multiple threads
+				
+				## First click of the Cam Button ##
+				## CHANGE TO ONLY CLICK OF CAM BUTTON ? ? ##
 				if btn_state1 == False:
 					print("READING QR CODE...")		# REMOVE
 					scanButton["text"] = "STOP\nSCAN"
@@ -258,9 +263,9 @@ def main():
 				else:
 					scanButton["text"] = "SCAN\n-ID-"
 					## Destroy the window here again??
-					#cv2.destroyAllWindows()			# does nothing??
+					#cv2.destroyAllWindows()		# does nothing??
 					#lift_window()					# Bring main GUI to top
-					print("Do nothing - REMOVE")
+					print("Do nothing - REMOVE")	
 					btn_state1 = not btn_state1		# Toggle button flag
 			
 			#############################
@@ -272,8 +277,14 @@ def main():
 				global btn_state2					# toggling button state
 				global Cnt							# make global again?
 				
+				## Start new thread each time ##
+				if thr1 == 0:
+					t1 = threading.Thread(target=get_gesture)	# Not started yet
+					threads.append(t1)							# for multiple threads
+				
 				## Click1 ##
 				if btn_state2 == False:
+					print("START COUNT")			# temporary - REMOVE
 					cntButton["text"] = "STOP\nCOUNT"
 					## If thread not started (can't start twice?)
 					if thr1 == 0:
@@ -288,13 +299,14 @@ def main():
 				
 				## Click2 ##
 				else:
+					print("STOP COUNT")				# temporary - REMOVE
 					cntButton["text"] = "START\nCOUNT"
 					## If thread was started ##
 					if thr1 == 1:					# Can't start thread again? - REMOVE?
-						thr1 = 0						# Clear thread flag
+						thr1 = 0					# Clear thread flag
 						GestDone = True				# Break out of Gesture funtion
 						## Close the thread ##
-						t1.join()					# Close the thread
+						#t1.join()					# ERROR - reference
 						
 						## Show the final count on the GUI
 						update_label()
@@ -320,11 +332,15 @@ def main():
 			## EXIT AND DESTROY GUI ##
 			##########################
 			def exitProgram():
-				print("Exit Button Pressed")
-				win.quit()
-			
-			
-			
+				global thr1
+				
+				if thr1 == 0:
+					print("Exit Button Pressed")
+					win.quit()
+				else:
+					print("Still busy...")	
+
+
 			## INITIALISE NEW WINDOW ##
 			win = Tk()
 			## Define the Fonts:

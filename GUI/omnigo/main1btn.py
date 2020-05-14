@@ -5,6 +5,7 @@ Author:
 	Antony Smith
 	
 Description:
+	Single button for both functions (QR code reader & gesture counter)
 	Main control class for omnigo IoT project
 
 Includes:
@@ -12,9 +13,26 @@ Includes:
 	PiCamera & OPENCV QR Code reading & storage method	- function outside "main"
 	
 Notes:
-	This version has working threads from each button
-	Gesture sensor counter is shown on GUI until stopped
-	OpenCV not destroying window properly
+	Threads on each button to run functions behind GUI functionality
+	Gesture sensor counter value shown on GUI until stopped
+	QR-Code scanner:
+		-> exits after 3x confirmed/matched QR reads
+		-> else exits after 25 seconds
+		-> 'q' exit prematurely
+
+Changes from main:
+	Stop Count Click:
+		-> store count value to ID's csv-cell
+		-> zero GUI counter label
+	Error/Info message label
+	Remove GUI Exit button
+		-> special exit routine??
+
+After changes:
+	New ID storage structure
+	Old ID recall details
+	Black/White List for ID's - menu?
+	Transfer csv data (Email/PubSub)
 
 USAGE:
 	python main.py
@@ -26,19 +44,22 @@ from Tkinter import *					# GUI package
 import tkFont							# GUI package
 from functools import partial			# passing argument to button?
 
+## MULTI-TASKING FUNCTIONS ##
 import threading						# Multi-Threading
 
+## GENERAL MAINTENANCE ##
 import sys, time						# Possibly remove ? ?
-from time import sleep					# Delays
+#from time import sleep					# Delays
+import time
 import traceback						# Error logging
 
 ## 	QR CODE IMPORTS ##
 from picamera import PiCamera			# Testing the Camera
 from imutils.video import VideoStream	# Video access library
 from pyzbar import pyzbar				# Decoding the QR Code
-import datetime							# piece of shit
+import datetime							# wekking?
 import imutils 							# Magic
-import cv2
+import cv2								# the eyes of the matrix
 
 ## GESTURE IMPORTS ##
 from apds9960.const import *
@@ -48,9 +69,9 @@ import smbus
 ###################
 ##  GLOBAL DEFS  ##
 ###################
-btn_state1 = True
-btn_state2 = True
-csv_file = "barcodes.csv"
+btn_state1 = 0							# changed to tri-state (0/1/2)
+#btn_state2 = True						# removed - only 1 button
+csv_file = "barcodes.csv"				# guess what this is?
 
 port = 1
 bus  = smbus.SMBus(port)
@@ -68,78 +89,81 @@ def main():
 	
 	GestDone = False								# initial state
 	Cnt = 0											# Counter start value
-	
+	info = "feedback..."							# GUI feedback information - OPTIONAL
 	ID_match = 0									# initial staff ID status
-	
+
 	try:
 		try:
 			################
 			## QR SCANNER ##
 			################
 			def QR_Scan():
-				winName = "SCAN ID"
-				scnCnt = 0			# count number of ID confirmations
-				done = "n"			# complete scanning flag
+				init_time = time.time()						# no. of secs since 1 Jan 1970
+				winName = "SCAN ID"							# name the video window
+				scnCnt = 0									# Number of ID confirmations
+				done = "n"									# Complete scanning flag
 				
-				# initialize the video stream and allow the camera sensor to warm up
+				## initialize video stream & warm up camera sensor
 				print("[INFO] starting video stream...")
 				vs = VideoStream(usePiCamera=True).start()
-				sleep(2.0)									# Allow video to stabalise
+				time.sleep(2.0)									# Allow video to stabalise
 				cv2.namedWindow(winName)
 				cv2.moveWindow(winName, 20,20)
 				
-				# open the output CSV file for writing
+				## open the output CSV file for writing
 				csv = open(csv_file, "w")
 				found = set()
-				sleep(2.0)									# TEST - REMOVE??
+				time.sleep(2.0)									# TEST - REMOVE??
+				print("[INFO] csv file opened...")
 				
-				# loop over the frames from the video stream
-				while True:
-					# grab the frame from the threaded video stream and resize it to
-					# have a maximum width of 400 pixels
+				## Loop over the frames from the video stream #
+				## Time-Out after 25 secs ##
+				while time.time()-init_time < 25:
+					## grab the frame from the threaded video stream and r
+					## esize it to have a maximum width of 400 pixels
 					frame = vs.read()
 					frame = imutils.resize(frame, width=400)
 				 
-					# find the barcodes in the frame and decode each of the barcodes
+					## find & decode the barcodes in each frame
 					barcodes = pyzbar.decode(frame)
 
-					# loop over the detected barcodes
+					## loop over the detected barcodes
 					for barcode in barcodes:
-						# extract bounding box location & draw around barcode
+						## extract bounding box location & draw around barcode
 						(x, y, w, h) = barcode.rect
 						cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 				 
-						# the barcode data is a bytes object so if we want to draw it
-						# on our output image we need to convert it to a string first
+						## the barcode data is a bytes object so if we want to draw it
+						## on our output image we need to convert it to a string first
 						barcodeData = barcode.data.decode("utf-8")
 						barcodeType = barcode.type
 				 
-						# draw the barcode data and barcode type on the image
+						## draw the barcode data and barcode type on the image
 						text = "{}".format(barcodeData)
 						cv2.putText(frame, text, (x, y - 10),
 							cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 				 
-						# if barcode is not stored, update new one to CSV file
+						## if barcode is not stored, update new one to CSV file
 						if barcodeData not in found:
 							csv.write("{},{}\n".format(datetime.datetime.now(), barcodeData))
 							csv.flush()
 							found.add(barcodeData)
-							print("ID not found.")
+							print("[INFO] ID not found.")
 						else:
-							print("ID: {}".format(barcodeData))
+							print("[INFO] ID: {}".format(barcodeData))
 							#print("Scan no: {}\n".format(scnCnt))
 							scnCnt += 1
 						
-						# If ID is confirmed 3 times?
+						## If ID is confirmed 3 times?
 						if scnCnt == 3:
 							scnCnt = 0					# clear the counter
 							done = "y"					# exit the loop
 
-					
+					## FOR FULL SCREEN ? ? ##
 					#cv2.namedWindow(winName, cv2.WINDOW_NORMAL)	# create a named window
 					#cv2.namedWindow(winName)
 					#cv2.moveWindow(winName, 20,20)					# set window placement
-					## Get window to full screen
+					## Get window to full screen ##
 					#cv2.setWindowProperty(winName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN) 
 					
 					## Show the output frame
@@ -148,14 +172,14 @@ def main():
 					
 					key = cv2.waitKey(1) & 0xFF
 				 
-					# if the `q` key was pressed, break from the loop
+					## if the `q` key was pressed, break from the loop
 					if key == ord("q"):
 						break
-					# if ID confirmed 3 times
+					## if ID confirmed 3 times
 					elif done == "y":
 						break
 				
-				# close the output CSV file do a bit of cleanup
+				## close the output CSV file do a bit of cleanup
 				print("[INFO] cleaning up...")
 				csv.close()								# close excel document
 				vs.stop()								# stop video stream
@@ -191,7 +215,7 @@ def main():
 					print("=================")
 					apds.enableGestureSensor()
 					while True:
-						sleep(0.5)
+						time.sleep(0.5)
 						if apds.isGestureAvailable():
 							motion = apds.readGesture()
 							direct = dirs.get(motion, "unknown")
@@ -233,74 +257,67 @@ def main():
 			thr1 = 0								# thread 1 flag
 			thr2 = 0								# thread 2 flag
 			
-			#t1 = threading.Thread(target=get_gesture)
-			#t2 = threading.Thread(target=QR_Scan)	
-			
 			##############################
 			## BUTTON: EMPLOYEE ID SCAN ##
 			##############################
-			def btn_scan():
-				global thr2
-				global btn_state1
-				
-				## Start new thread each time ##
-				if thr2 == 0:
-					t1 = threading.Thread(target=QR_Scan)	# Not started yet
-					threads.append(t1)						# for multiple threads
-				
-				## First click of the Cam Button ##
-				## CHANGE TO ONLY CLICK OF CAM BUTTON ? ? ##
-				if btn_state1 == False:
-					print("READING QR CODE...")		# REMOVE
-					scanButton["text"] = "STOP\nSCAN"
-					## If thread not started (can't start twice?)
-					if thr2 == 0:
-						thr2 = 1					# toggle flag
-						t2.start()					# start gesture thread
-										
-					btn_state1 = not btn_state1		# Toggle button flag
-				## DOES NOTHING HERE - REMOVE
-				else:
-					scanButton["text"] = "SCAN\n-ID-"
-					## Destroy the window here again??
-					#cv2.destroyAllWindows()		# does nothing??
-					#lift_window()					# Bring main GUI to top
-					print("Do nothing - REMOVE")	
-					btn_state1 = not btn_state1		# Toggle button flag
-			
-			#############################
-			## BUTTON: GESTURE COUNING ##
-			#############################
-			def btn_cnt():
+			def btn_start():
+				## Gesture counter #
 				global GestDone						# Exit Gesture mode flag
 				global thr1							# thread flag
-				global btn_state2					# toggling button state
 				global Cnt							# make global again?
+				## ID Scanner #
+				global thr2
+				global btn_state1					# changed top tri-state
+				global info
 				
-				## Start new thread each time ##
+				## Start new thread each time - Counter ##
 				if thr1 == 0:
 					t1 = threading.Thread(target=get_gesture)	# Not started yet
 					threads.append(t1)							# for multiple threads
 				
-				## Click1 ##
-				if btn_state2 == False:
-					print("START COUNT")			# temporary - REMOVE
-					cntButton["text"] = "STOP\nCOUNT"
+				## Start new thread each time - ID Scan ##
+				if thr2 == 0:
+					t2 = threading.Thread(target=QR_Scan)	# Not started yet
+					threads.append(t2)						# for multiple threads
+				
+				## START ID SCAN ROUTINE #
+				if btn_state1 == 0:
+					print("READING QR CODE...")				# REMOVE	
+					bigButton["text"] = "START\nCOUNT"
+					info = "Info: Video Window Starting..."				
+					
+					## Update GUI information ##
+					update_label()
+						
+					## If thread not started (can't start twice?)
+					if thr2 == 0:
+						thr2 = 1							# toggle flag
+						t2.start()							# start gesture thread
+										
+					btn_state1 = 1				# Toggle button flag
+					
+				## START COUNT ROUTINE #
+				elif btn_state1 == 1:
+					print("START COUNTING ROUTINE NOW...")	# REMOVE
+					bigButton["text"] = "STOP\nCOUNT"		# button label change
+					info = "Info: Started Counting..."
+					
 					## If thread not started (can't start twice?)
 					if thr1 == 0:
-						thr1 = 1					# toggle flag
-						t1.start()					# start gesture thread
+						thr1 = 1							# toggle flag
+						t1.start()							# start gesture thread
 					
-					## Update initial count value ##
-					## -> REDUNDANT: Unless continuing count
+					## Update GUI information ##
 					update_label()
 					
-					btn_state2 = not btn_state2		# toggle button flag
+					btn_state1 = 2					# Click to end the count
 				
-				## Click2 ##
-				else:
+				## END COUNT ROUTINE #
+				elif btn_state1 == 2:
 					print("STOP COUNT")				# temporary - REMOVE
-					cntButton["text"] = "START\nCOUNT"
+					bigButton["text"] = "START\nCOUNT"
+					info = "Info: Counting Complete"
+					
 					## If thread was started ##
 					if thr1 == 1:					# Can't start thread again? - REMOVE?
 						thr1 = 0					# Clear thread flag
@@ -308,18 +325,21 @@ def main():
 						## Close the thread ##
 						#t1.join()					# ERROR - reference
 						
-						## Show the final count on the GUI
+						## Update GUI information ##
 						update_label()
 					
-					btn_state2 = not btn_state2		# toggle button flag
+					btn_state1 = 1					# back to start count?
 			
 			###########################
 			## REALTIME LABEL UPDATE ##
 			###########################
 			def update_label():
 				global Cnt
+				global info
+				
 				# Change label
-				label_4.config(text="Count: {}".format(Cnt), font = myFont2)
+				label_4.config(text="- {} -".format(Cnt), font = myFont1)
+				label_6.config(text="{}".format(info), font = "Helvetica 10")
 			
 			#########################
 			## BRING WINDOW TO TOP ##
@@ -344,77 +364,81 @@ def main():
 			## INITIALISE NEW WINDOW ##
 			win = Tk()
 			## Define the Fonts:
-			myFont1 = tkFont.Font(family = 'Helvetica', size = 24, weight = 'bold')
+			myFont1 = tkFont.Font(family = 'Helvetica', size = 30, weight = 'bold')
 			myFont2 = tkFont.Font(family = 'Helvetica', size = 12, weight = 'bold')
 
 			# SETUP WINDOW PARAMTERS ##
 			win.title("OMNIGO")						# define window title
 			win.geometry('480x320+0+0')				# define screen size
 			#win.attributes("-fullscreen", True)	# full screen GUI
-			win.configure(background = "darkblue")	# set colour
+			win.configure(background = "gray15")	# set colour
 			
-			# SPACER ##
-			label_1 = Label(win, 
-							text	= " ",
-							bg 		= "darkblue",
-							font 	= "Helvetica 10")
+			# EXIT BUTTON ##
+			exitButton  = Button(win, 
+								text 	= "X", 
+								font 	= myFont2, 
+								command = exitProgram,
+								bg		= "gray15",
+								fg 		= "gray64",
+								height 	= 1 , 
+								width 	= 1) 
+			exitButton.pack(side=TOP, anchor=NE)
+			
 			# OMNIGO TITLE ##
 			label_2 = Label(win, 
 							text 	= "- OMNIGO -", 
-							bg 		= "darkblue",
-							fg 		= "white",
+							bg 		= "gray15",
+							fg 		= "OrangeRed2",
 							relief 	= "solid",
-							font 	= "Times 24",
+							font 	= "Helvetica 36",
 							width 	= 11,
 							height	= 1)
 			# SPACER ##
 			label_3 = Label(win, 
 							text	= " ", 
-							bg 		= "darkblue",
-							font 	= "Helvetica 10")
-			# PCB COUNT ##
-			label_4 = Label(win, 
-							text	= "Count: {}".format(Cnt), 
-							fg 		= "white",
-							bg 		= "darkblue",
+							bg 		= "gray15",
+							font 	= "Helvetica 18")
+			
+			# Place objects ##
+			#label_1.pack(padx=10)
+			label_2.pack(padx=10)
+			label_3.pack(padx=10)
+			
+			# STOP/START BUTTON ##
+			bigButton = Button(win, 
+								text 	= "SCAN\n- ID -", 
+								font 	= myFont1, 
+								command = btn_start,	# btn_cnt,
+								fg 		= "Red4",
+								bg 		= "gray45",
+								height 	= 2, 
+								width 	= 12)
+			bigButton.pack(anchor=CENTER)			# place the object
+				
+			# SPACER ##
+			label_5 = Label(win, 
+							text	= " ", 
+							bg 		= "gray15",
 							font 	= "Helvetica 14")
+			# COUNTER ##
+			label_4 = Label(win, 
+							text	= "- {} -".format(Cnt), 
+							fg 		= "OrangeRed2",
+							bg 		= "gray15",
+							font 	= "Helvetica 30")
+			# INFORMATION ##
+			label_6 = Label(win, 
+							text	= "info: {}".format(info), 
+							fg 		= "OrangeRed2",
+							bg 		= "gray15",
+							font 	= "Helvetica 10")
+							
+			# Place more objects ##
+			label_5.pack(padx=10)					# spcer from button
+			label_4.pack(padx=10)					# PCB counter
+			label_6.pack(anchor=SW)	# PCB counter
 			
-			label_1.pack()
-			label_2.pack()
-			label_3.pack()
-			label_4.pack()
-
-			# EXIT BUTTON ##
-			exitButton  = Button(win, 
-								text 	= "Exit", 
-								font 	= myFont1, 
-								command = exitProgram, 
-								height 	= 1 , 
-								width 	= 5) 
-			exitButton.pack(side = BOTTOM)
-
-			# ID SCAN BUTTON ##
-			scanButton = Button(win, 
-								text 	= "SCAN", 
-								font 	= myFont1, 
-								command = btn_scan,
-								fg 		= "darkgreen",
-								bg 		= "white",
-								height 	= 3, 
-								width 	= 10)
-			scanButton.pack(side = LEFT)
-			
-			# COUNT BUTTON ##
-			cntButton = Button(win, 
-								text 	= "COUNT", 
-								font 	= myFont1, 
-								command = btn_cnt,
-								fg 		= "darkgreen",
-								bg 		= "white",
-								height 	= 3, 
-								width 	= 10)
-			cntButton.pack(side = RIGHT)
-
+			# ##
 			mainloop()
 			
 		# Ctrl+C will exit the program correctly

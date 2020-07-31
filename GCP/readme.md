@@ -25,3 +25,6 @@
 
 * Connects to Google IoT-Core via MQTT
 * never really took it further, but hopeful
+
+###setup
+Complete GC Platform + RasPi setup instructions

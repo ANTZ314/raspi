@@ -1,11 +1,13 @@
-========================
-Clone SD Card:
-========================
+========================================================================
+							Clone SD Card:
+========================================================================
 
 ------------------
 Check Drive Name:
 ------------------
 sudo fdisk -l
+-OR-
+lsblk
 
 ------------------
 Create Image:
@@ -13,13 +15,14 @@ Create Image:
 sudo dd if=/dev/sdb of=~/raspbian_backup.img
 -OR-
 sudo dd if=/dev/mmcblk0 bs=4M of=~/Desktop/raspbian_backup.img
+-OR-
+sudo ddrescue /dev/Storage/Storage Storage.img | pv
 
 
 
-
-========================
-Restore SD Card:
-========================
+========================================================================
+							Restore SD Card:
+========================================================================
 
 ------------------
 Check Drive Name:

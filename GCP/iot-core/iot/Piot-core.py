@@ -1,23 +1,42 @@
 # -*- coding: utf-8 -*-
 """
 Description:
-Integration of 'json1.py' (json string creator) and 'iot-pub.py' (gcloud publisher)
+	Written for RasPi -> pyzbar + picamera
+	Read QR Code (from text file), then copy data to Dictionary
+	Create JSON string from disctionary
+	Connect to GCP via MQTT and upload JSON string
+	Converted to connect to SIATIK GCP project??
 
 Notes:
-ssl security files: roots.pem & rsa_private.pem
-'jwt_maker.py' to create JWT security key
+	Due to python 2.7 versioning on RasPi Zero -> Dictionary is in jumbled order ? ? ?
+
+GCP Requirements:
+	-> ssl security files: 
+		=> roots.pem
+		=> rsa_private.pem
+	-> 'jwt_maker.py' to create JWT security key
 
 Use:
 python iot-core.py
 """
+## JSON File and GCP ##
+#import datetime
 import json
-#from datetime import datetime
-import datetime
 import time
 import jwt
 import paho.mqtt.client as mqtt
 
-## Define some project-based variables to be used below ##
+## QR CODE IMPORTS ##
+from picamera import PiCamera		# Testing the Camera
+from imutils.video import VideoStream	# Video access library
+from pyzbar import pyzbar		# Decoding the QR Code
+import datetime				# wekking?
+import imutils 				# A little slice of Magic
+import cv2				# When you stare into the matrix...
+
+csv_file = "barcodes.csv"		# guess what this is?
+"""
+## GCP PROJECT VARIABLES - MINE ##
 ssl_private_key_filepath = './certs/rsa_private.pem'  # '<ssl-private-key-filepath>'
 ssl_algorithm            = 'RS256'                    # '<algorithm>' # Either RS256 or ES256
 root_cert_filepath       = './certs/roots.pem'        # '<root-certificate-filepath>'
@@ -25,6 +44,15 @@ project_id               = 'iot-omnigo1'              # '<GCP project id>'
 gcp_location             = 'us-central1'              # '<GCP location>'
 registry_id              = 'omnigo_registry'          # '<IoT Core registry id>'
 device_id                = 'omnigo_device1'           # '<IoT Core device id>'
+"""
+## GCP PROJECT VARIABLES - SIATIK ##
+ssl_private_key_filepath = './certs/rsa_private.pem'		# '<ssl-private-key-filepath>'
+ssl_algorithm            = 'RS256'                    		# '<algorithm>' -> Either RS256 or ES256
+root_cert_filepath       = './certs/roots.pem'        		# '<root-certificate-filepath>'
+project_id               = 'omnigo'              			# '<GCP project id>'
+gcp_location             = 'europe-west1'              		# '<GCP location>'
+registry_id              = 'omnigo-test'          			# '<IoT Core registry id>'
+device_id                = 'omnigo-unit-1'           		# '<IoT Core device id>'
 
 
 ## Proiject Information dictionary ##
@@ -135,7 +163,7 @@ class OmniData:
 ##########################
 ## UPDATE ALL INFO DATA ## 
 ## CREATE JSON STRING 	## 
-## STORE TO FILE 		##
+## STORE TO FILE 	##
 ##########################
 def createJSON(qrData):
 	exists = 0											# append after printing contents
@@ -152,7 +180,7 @@ def createJSON(qrData):
 	## Depending on KIT or STAFF qrScan ##
 	dataDict['START'] 	 = current_time					# insert current time
 	dataDict['STOP'] 	 = current_time					# insert current time
-	#dataDict['STAFF_ID'] = '159'						# everything in strings?
+	dataDict['STAFF_ID'] = '159'						# everything in strings?
 
 	#print(dataDict)									# REMOVE (view dictionary contents)
 
@@ -171,32 +199,104 @@ def createJSON(qrData):
 	OmniData1.REASON 	= dataDict['REASON']
 	OmniData1.SERIAL 	= dataDict['SERIAL']
 
-	#convert to JSON string
+	## convert to JSON string ##
 	jsonStr = json.dumps(OmniData1.__dict__)
 	#print(jsonStr)										# REMOVE (view json string)
 
-	## Check if the file exists & OVER-WRITE new string ##
-	try:												# Skip if file doesn't exist
-		file = open('iotCore.json', 'r') 				# Open to read file
-		#print (file.read())							# Print the contents
-		file.close()									# Close the file
-	except:
-		exists = 1										# Don't append twice if file exists
-		file= open("iotCore.json","w")					# Create/open file then Append data 
-		#file= open("test.json","a+")					# Create/open file then Append data 
-		file.write(jsonStr)								# 
-		file.close()									# Exit the opened file
-
-	# If file exists, append new string
-	if exists == 0:										# append after printing contents
-		file= open("iotCore.json","w")					# Create/open file then Append data 
-		#file= open("test.json","a+")					# Create/open file then Append data 
-		file.write(jsonStr)								# 
-		file.close()									# Exit the opened file
-	else:												# 
-		print ("\nFile Didn't exist - Created???"	)				# notification	
+	############################
+	## REMOVED STRING STORAGE ##
+	############################
 
 	return jsonStr										# pass JSON string back
+
+
+################
+## QR SCANNER ##
+################
+def QR_Scan():
+	init_time = time.time()				# no. of secs since 1 Jan 1970
+	winName = "SCAN ID"				# name the video window
+	scnCnt = 0									# Number of ID confirmations
+	done = "n"									# Complete scanning flag
+				
+	## initialize video stream & warm up camera sensor
+	print("[INFO] starting video stream...")
+	vs = VideoStream(usePiCamera=True).start()
+	time.sleep(2.0)									# Allow video to stabalise
+	cv2.namedWindow(winName)
+	cv2.moveWindow(winName, 20,20)
+				
+	## open the output CSV file for writing
+	csv = open(csv_file, "w")
+	found = set()
+	time.sleep(2.0)									# TEST - REMOVE??
+	print("[INFO] csv file opened...")
+				
+	## Loop over the frames from the video stream #
+	## Time-Out after 25 secs ##
+	while time.time()-init_time < 25:
+		## grab the frame from the threaded video stream and r
+		## esize it to have a maximum width of 400 pixels
+		frame = vs.read()
+		frame = imutils.resize(frame, width=400)
+				 
+		## find & decode the barcodes in each frame
+		barcodes = pyzbar.decode(frame)
+
+		## loop over the detected barcodes
+		for barcode in barcodes:
+			## extract bounding box location & draw around barcode
+			(x, y, w, h) = barcode.rect
+			cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+				 
+			## the barcode data is a bytes object so if we want to draw it
+			## on our output image we need to convert it to a string first
+			barcodeData = barcode.data.decode("utf-8")
+			barcodeType = barcode.type
+				 
+			## draw the barcode data and barcode type on the image
+			text = "{}".format(barcodeData)
+			cv2.putText(frame, text, (x, y - 10),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+				 
+			## if barcode is not stored, update new one to CSV file
+			if barcodeData not in found:
+				#csv.write("{},{}\n".format(datetime.datetime.now(), barcodeData))
+				csv.write("{}\n".format(barcodeData))
+				csv.flush()
+				found.add(barcodeData)
+				#print("[INFO] ID not found.")
+			else:
+				#print("[INFO] ID: {}".format(barcodeData))
+				#print("Scan no: {}\n".format(scnCnt))
+				scnCnt += 1
+						
+			## If ID is confirmed 3 times?
+			if scnCnt == 3:
+				scnCnt = 0		# clear the counter
+				done = "y"		# exit the loop
+
+		## Show the output frame
+		cv2.imshow(winName, frame)
+		#cv2.imshow("SCAN ID", frame)
+					
+		key = cv2.waitKey(1) & 0xFF
+				 
+		## if the `q` key was pressed, break from the loop
+		if key == ord("q"):
+			break
+		## if ID confirmed 3 times
+		elif done == "y":
+			break
+				
+	## close the output CSV file do a bit of cleanup
+	print("[INFO] cleaning up...")
+	csv.close()					# close excel document
+	vs.stop()					# stop video stream
+	cv2.destroyAllWindows()				# not destroying??
+	#lift_window()					# Put GUI on the top
+	return barcodeData
+
 
 ####################
 ## THE BIG KAHUNA ##
@@ -205,6 +305,8 @@ def main():
 	qrData = "data from qr code"
 	iotJSON = "upload"
 
+	print("Read the QR Code...")
+	#qrData = QR_Scan()
 	#############################################
 	## Read "QR_Code" data - text file for now ##
 	#############################################
@@ -212,15 +314,15 @@ def main():
 	qrData = file.read()
 	file.close()
 	#############################################
+	print(qrData)
 	
 	print("Create the JSON stuff...")
-	iotJSON = createJSON(qrData)	# Ummmmm...?
+	iotJSON = createJSON(qrData)			# self explanatory
 
 	print("Publish the JSON string to GCP")
-	iot_publish(iotJSON)			# Publish JSON to IoT_Core
+	iot_publish(iotJSON)					# Publish JSON to IoT_Core
 
 	print("COMPLETE!!")
-
 
 
 if __name__ == "__main__": main()

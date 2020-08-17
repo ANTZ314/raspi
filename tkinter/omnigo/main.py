@@ -4,7 +4,17 @@
 Author:
 	Antony Smith - T.S.E. [July 2020]
 
+--------------------------------------
+FINAL CLEANUP:
+	Remove all unneccessary prints
+	Check for unused variables/flags
+	Remove commented lines
+	Remove test functions
+--------------------------------------
+
 Description:
+	THIS VERSION IS FOR 4 DEMO UNITS - (MAKE FULL SCREEN)
+	GCP MQTT to SIATIK GC-Platform
 	Main control GUI for Omnigo IoT project
 	Raspberry Pi Zero + PiCamera + APDS9960
 
@@ -20,19 +30,18 @@ Primary Functions:
 	Exit code required to leave GUI						- [complete]
 	Drop-down menu stage selector						- [complete]
 	JSON data format conversion							- [complete]
-	Upload data to Google Cloud IoT-Core 				- [complete]
+	Upload data to Google Cloud IoT-Core [SIATIK]		- [complete]
 
-Changes required:
-	cv2 Camera window NOT destroyed						- [incomplete]
-	Counter thread NOT ending							- [incomplete]
-	Re-Scan ID's later?									- [incomplete]
-		
+Change from main17:
+	Gesture Sensor Proximity Settings					- [incomplete]
+	Video Window - Full Screen							- [incomplete]
+
 Notes:
+	GUI EXIT CODE: 3529# ('*' to Delete)
 	QR-Code scanner:
 		-> exits after 3x confirmed QR reads
 		-> 'q' exit prematurely
-		-> EXIT CODE: 3529# ('*' to Delete)
-	GCP connectivity requires:
+	GCP connectivity requirements:
 		-> 'jwt_maker.py' to create JWT security key
 		-> ssl security files: 
 			=> roots.pem
@@ -52,6 +61,7 @@ from functools import partial			# passing argument to button?
 
 ## MULTI-TASKING FUNCTIONS ##
 import threading						# Multi-Threading
+import multiprocessing
 
 ## GENERAL MAINTENANCE ##
 import sys								# Possibly remove ? ? ?
@@ -85,7 +95,8 @@ import base64							#
 btn_state1 = 0										# changed to tri-state (0/1/2)
 csv_file = "barcodes.csv"							# guess what this is?
 OptionList = ["SETUP","THRU","SMT","INSP","EXIT"] 	# Drop Down Menu Options
-# Some technical requirements
+
+## Gesture Sensor Hardware Requirements ##
 port = 1
 bus  = smbus.SMBus(port)
 apds = APDS9960(bus)
@@ -96,21 +107,21 @@ apds = APDS9960(bus)
 ###################
 def main():
 	global thr1										# thread flag
-	global thr2										# thread flag
 	global Cnt										# PCB count value
 	global GestDone									# Exit Gesture flag
+	global QRDone									# Exit QR Scan flag
 	global pin	 									# Exit Code Value
 	global CodeDone									# Exit Code - flag
 	global qrData									# Get QR Data
 	global iotJSON									# Converted to JSON format
 	global firstScan								# (createJSON) - store certain data on first scan
-	global projectStat					# (createJSON) - project start or stop
+	global strtstp						# (createJSON) - project start or stop
 	global staffID									# (createJSON) - Extracted Staff ID
 	
 	lay=[]											# layering windows??
 	CodeDone = False								# Exit Code - negative
 	pin  = ''										# Exit Code - blank string
-	GestDone = False								# Gesture count - flag
+	QRDone   = False								# QR Scan 		- flag
 	Cnt = 0											# PCB Counter start value
 	info = "feedback..."							# GUI feedback information - OPTIONAL
 	ID_match = 0									# ID Scan - initial staff ID status
@@ -118,20 +129,13 @@ def main():
 	iotJSON = "upload"								# initialise to string format
 	firstScan = 0									# initialise for 1st data update
 	staffKit = 0									# initialise to kit_ID 1st
-
+	
 	## GCP PROJECT VARIABLES - SIATIK ##
-	ssl_private_key 		 = './certs/rsa.pem'				# '<ssl-private-key-filepath>'
-	ssl_algorithm            = 'RS256'                    		# '<algorithm>' -> Either RS256 or ES256
-	project_id               = 'omnigo'              			# '<GCP project id>'
-	#root_cert       		 = './certs/roots.pem'        		# '<root-certificate-filepath>'
-	#gcp_location             = 'europe-west1'              	# '<GCP location>'
-	#registry_id              = 'omnigo-test'          			# '<IoT Core registry id>'
-	#device_id1               = 'omnigo-unit-1:publishEvent'	# '<IoT Core device id>'
-	#device_id2               = 'omnigo-unit-2:publishEvent'	# '<IoT Core device id>'
-	#device_id3               = 'omnigo-unit-3:publishEvent'	# '<IoT Core device id>'
-	#device_id4               = 'omnigo-unit-4:publishEvent'	# '<IoT Core device id>'
-
-	## Proiject Information dictionary ##
+	ssl_private_key 		 = './certs/rsa.pem'	# '<ssl-private-key-filepath>'
+	ssl_algorithm            = 'RS256'              # '<algorithm>' -> RS256 or ES256
+	project_id               = 'omnigo'             # '<GCP project id>'
+	
+	## Project Information Dictionary ##
 	global dataDict
 	dataDict = {'CLIENT'	: 'xxx',			# Client Name
 				'PROJECT'	: '0',				# Project ID
@@ -151,6 +155,70 @@ def main():
 	
 	try:
 		try:
+			thr1 = 0											# thread 1 flag
+			###############################
+			## TEST FUNCTION - TEMPORARY ##
+			###############################
+			def fake_scan():
+				ender = 0
+				global QRDone				# Exit Scan loop
+				global qrData
+				global staffID
+				global firstScan
+				global projStat
+				
+				## Button click to exit? ##
+				while QRDone == False:
+					ender += 1
+					print("...SCANNING...")
+					time.sleep(1)
+					if ender == 3:
+						QRDone = True
+				
+				qrData = "CLIENT=Omnigo,PROJECT=123456,STAGE=SETUP,BOARDS=1000,PANELS=50,STAFF_ID=357,TIME=00:00,DATE=01-01-2000,START=00:00,STOP=00:00,REASON=NULL,SERIAL=987654321"
+				staffID = 357	# fake staff ID
+				firstScan = 0	# update first data
+				print("Extracted Data String")
+				ender = 0		# Go Again
+				QRDone = False	# Go Again
+			
+			###############################
+			## DEMO FUNCTION - TEMPORARY ##
+			###############################
+			def fake_gesture():
+				global Cnt					# Double defined?
+				global GestDone				# Exit Gesture loop
+				global strtstp				# Start Stop times
+				
+				Cnt = 0						# initialised
+				sendCnt = 0					# Could make global?
+				strtstp = 0					# start time
+				GestDone = False
+
+				## Button click to exit? ##
+				while GestDone == False:
+					## ~SWIPE~ ##
+					Cnt += 1				# increment board count
+					
+					## Continuously update GUI Label ##
+					update_label()
+						
+					## ON EVERY 3RD COUNT ##
+					sendCnt += 1
+					if sendCnt == 3:
+						handleData(Cnt)
+						sendCnt = 0
+
+					time.sleep(2)			# every 3 seconds
+				
+				time.sleep(1)				# wait
+				print("Last PUBLISH")		# REMOVE
+				## Publish Stop Time ##
+				strtstp = 2					# stop time
+				handleData(Cnt)				# create & publish
+				print("Count Complete")		# REMOVE
+			
+			
 			################
 			## QR SCANNER ##
 			################
@@ -179,7 +247,11 @@ def main():
 					frame = vs.read()
 					frame = imutils.rotate(frame, 90)			# rotate 90 due to camera mount
 					frame = imutils.resize(frame, width=400)
-				 
+					
+					## Fullscreen Window ##
+					cv2.namedWindow(winName,cv2.WND_PROP_FULLSCREEN)
+					cv2.setWindowProperty(winName,cv2.WND_PROP_FULLSCREEN,1)
+					
 					## find & decode the barcodes in each frame
 					barcodes = pyzbar.decode(frame)
 
@@ -234,13 +306,6 @@ def main():
 							## Add text centered in image ##
 							cv2.putText(frame, text, (textX, textY), font, 2, (0, 255, 0), 3)
 
-					## FOR FULL SCREEN ? ? - FIX ##
-					#cv2.namedWindow(winName, cv2.WINDOW_NORMAL)# create a named window
-					#cv2.namedWindow(winName)
-					#cv2.moveWindow(winName, 20,20)				# set window placement
-					## Get window to full screen ##
-					#cv2.setWindowProperty(winName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN) 
-					
 					## Show the output frame ##
 					cv2.imshow(winName, frame)
 					key = cv2.waitKey(1) & 0xFF
@@ -255,59 +320,20 @@ def main():
 						break
 					## if ID confirmed 3 times ##
 					elif done == "y":
-						#print(qrData)							# REMOVE
-						#print(staffID)							# REMOVE
 						break
 				
 				## close the output CSV file do a bit of cleanup ##
 				print("[INFO] cleaning up...")
-				"""
-				## Impossible to Destroy Video Window ##
-				cv2.waitKey(0)
-				vs.stop()
-				cv2.destroyWindow(winName)						# destroy specific window??
-				for i in range (1,5):
-					cv2.waitKey(1)
-				win.destroy()
-				"""
 				vs.stop()										# stop video stream
 				cv2.destroyAllWindows()							# NOT destroying??
-				#lift_window()									# Put GUI on the top
 				win.lift()										# Put GUI on the top
 				
 			
-			#########################
-			## FAKE COUNTER - DEMO ##
-			#########################
-			def fake_gesture():
-				global Cnt					# Double defined?
-				global GestDone				# Exit Gesture loop
-				
-				Cnt = 0						# initialised
-				sendCnt = 0					# Could make global?
-				GestDone = False
-
-				## Button click to exit? ##
-				while GestDone == False:
-					## SWIPE ##
-					Cnt += 1				# increment board count
-
-					## Continuously update GUI Label ##
-					update_label()
-						
-					## ON EVERY 3RD COUNT ##
-					sendCnt += 1
-					if sendCnt == 3:
-						handleData(Cnt)
-						sendCnt = 0
-
-					time.sleep(3)			# every 3 seconds
-
-
 			#####################
 			## GESTURE COUNTER ##
 			#####################
 			def get_gesture():
+				global strtstp				# Start/Stop (time) Flag
 				global Cnt					# Double defined?
 				global GestDone				# Exit Gesture loop
 				Cnt = 0						# Double defined?
@@ -326,33 +352,45 @@ def main():
 					APDS9960_DIR_FAR:   "far",
 					}
 				try:
-					# Set the proximity threshold
-					apds.setProximityIntLowThreshold(50)
+					## Set the proximity threshold ##
+					apds.setProximityIntLowThreshold(80)	# No Change?
+					apds.setProximityIntHighThreshold(110)	# No Change?
 						
-					print("CAPTURE GESTURES:")						# remove
-					print("=================")						# remove
+					print("COUNT MODE:")					# REMOVE
+					print("===========")					# REMOVE
 					apds.enableGestureSensor()
+					apds.setGestureEnterThresh(100)
+					apds.setGestureExitThresh(110)
+					apds.clearAmbientLightInt()
+					apds.setGestureLEDDrive(3)
 					
 					## EXIT the Gesture Thread ? ##
-					while GestDone == False:						# while True:
+					while GestDone == False:				# while True:
 						time.sleep(0.5)
 						if apds.isGestureAvailable():
 							motion = apds.readGesture()
 							direct = dirs.get(motion, "unknown")
-							#print("Gesture = {}".format(direct))	# remove
+							#print("Gesture = {}".format(direct))	# REMOVE
 							
+							if direct == "none":
+								Cnt += 1					# increment board count
+								## Upper limit? ##
+								
 							if direct == "left":
-								Cnt += 1					# May need upper limit?
+								Cnt += 1					# increment board count
+								## Upper limit? ##
 							
 							elif direct == "up":
-								Cnt += 1					# May need upper limit?
+								Cnt += 1					# increment board count
+								## Upper limit? ##
 							
 							elif direct == "right":
-								if Cnt > 0:					# Avoid negative situations
-									Cnt -= 1
+								Cnt += 1					# increment board count
+								## Upper limit? ##
 							
 							elif direct == "down":
-								if Cnt > 0:					# Avoid negative situations
+								## Avoid negative situations ##
+								if Cnt > 0:					
 									Cnt -= 1
 							
 							## Continuously update GUI Label ##
@@ -362,99 +400,99 @@ def main():
 							sendCnt += 1
 							if sendCnt == 3:
 								sendCnt = 0
-								handleData(Cnt, sendCnt)
+								handleData(Cnt)
 						
 
 				## Do before exiting Gesture Mode ##
 				finally:
+					print("Last PUBLISH")					# REMOVE 
+					## Publish Stop Time ##
+					strtstp = 2								# stop time
+					handleData(Cnt)							# create & publish
 					## Zero Counter - On Next Count ##
 					Cnt = 0 								# zero the count value
 					update_label()							# update the GUI label
 
 
-			## Initialise both Threads (not started yet) ##
-			threads = []										# create thread list
-			thr1 = 0											# thread 1 flag
-			thr2 = 0											# thread 2 flag
-			
 			##############################
 			## BUTTON: EMPLOYEE ID SCAN ##
 			##############################
 			def btn_start():
-				## Gesture counter #
-				global GestDone								# Exit Gesture mode flag
-				global thr1									# thread flag
-				global Cnt									# make global again?
-				## ID Scanner #
-				global thr2
-				global btn_state1							# changed top tri-state
-				global info
-				## GCP JSON ##
-				global qrData								# Pass QR Code data to JSON creator
-				global iotJSON								# Convert to JSON & publish
-
+				global strtstp										# Start/Stop (time) Flag
+				## Gesture counter ##
+				global GestDone										# Exit Gesture mode flag
+				global Cnt											# make global again?
+				## ID Scanner ##
+				global btn_state1									# changed to tri-state
+				global info											# GUI info bar
+				## Threading ##
+				global thr1											# 1st thread flag
+				global t1											# thread object
 				
-				## Start new thread each time - Counter ##
-				if thr1 == 0:
-					#t1 = threading.Thread(target=get_gesture)	# Not started yet
-					t1 = threading.Thread(target=fake_gesture)	# Not started yet
-					threads.append(t1)							# for multiple threads
-				
-				## Start new thread each time - ID Scan ##
-				if thr2 == 0:
-					t2 = threading.Thread(target=QR_Scan)	# Not started yet
-					threads.append(t2)						# for multiple threads
-				
-				## START ID SCAN ROUTINE #
+				###########################
+				## START ID SCAN ROUTINE ##
+				###########################
 				if btn_state1 == 0:
-					print("READING QR CODE...")				# REMOVE	
-					bigButton["text"] = "START\nCOUNT"		# Change Button Title
-					## Update GUI Info Tab ##
+					## Update GUI Labels ##
+					bigButton["text"] = "START\nCOUNT"				# Change Button Title
 					info = "Info: Video Window Starting..."
-					update_label()
-					
-					## If thread not started (can't start twice?)
-					if thr2 == 0:
-						thr2 = 1							# toggle flag
-						t2.start()							# start QR Reader thread
-
-					btn_state1 = 1							# To "START COUNTER"
-					
-				## START COUNT ROUTINE #
+					update_label()									# Update GUI info bar
+					## Start QR Scan ##
+					QR_Scan()										# Scan (2x) QR Codes
+					#fake_scan()									# REMOVE - testing
+					btn_state1 = 1									# To "START COUNTER"
+				
+				#########################
+				## START COUNT ROUTINE ##
+				#########################
 				elif btn_state1 == 1:
-					print("START COUNTING ROUTINE NOW...")	# REMOVE
-					bigButton["text"] = "STOP\nCOUNT"		# button label change
-					info = "Info: Started Counting..."		# User info
-					Cnt = 0									# zero counter
-					
-					## If thread not started (can't start twice?)
+					## Initialise thread once - can't kill ##
 					if thr1 == 0:
-						print("start gesture thread")
-						thr1 = 1							# toggle flag
-						t1.start()							# start gesture thread
+						strtstp = 0									# Update Start time
+						#print("Initialise GESTURE")				# REMOVE
+						thr1 = 1									# Only once per Start
+						t1 = threading.Thread(name='daemon', target=get_gesture)	# Not started yet
+						#t1 = threading.Thread(name='daemon', target=fake_gesture)	# REMOVE - testing
+						t1.setDaemon(True)							# Make Daemonic
+						
+					## Update GUI Labels ##
+					bigButton["text"] = "STOP\nCOUNT"				# button label change
+					info = "Info: Start Counting..."				# User info
+					Cnt = 0											# zero counter
 					
+					## If thread not started (can't start twice?) ##
+					if thr1 == 1:
+						#print("Start COUNT Thread")				# REMOVE
+						thr1 = 2									# toggle flag
+						GestDone = False							# start loop
+						## BEWARE - THREAD IS IMMORTAL! ##
+						t1.start()									# start gesture thread
+						
+					update_label()									# Update GUI info
+					btn_state1 = 2									# To "STOP COUNTER"
+				
+				######################
+				## END COUNT ROUTINE #
+				######################
+				elif btn_state1 == 2:
+					#print("STOP COUNT")							# REMOVE
+					bigButton["text"] = "START\nSCAN"
+					info = "Info: Counting Complete"
+										
+					## If Gesture Thread is Running ##
+					if t1.isAlive():								#if thr1 == 2:
+						thr1 = 0									# Clear thread flag
+						#t1.join()									# FREEZE GUI
+						GestDone = True								# Break out of Gesture funtion
+					else:
+						print("Due to the immortal thread,")
+						print("We should never come here...")
+						
 					## Update GUI information ##
 					update_label()
 					
-					btn_state1 = 2							# To "STOP COUNTER"
-				
-				## END COUNT ROUTINE #
-				elif btn_state1 == 2:
-					print("STOP COUNT")						# REMOVE
-					bigButton["text"] = "START\nCOUNT"
-					info = "Info: Counting Complete"
-					
-					## If thread was started ##
-					if thr1 == 1:							# Can't start thread again? - REMOVE?
-						thr1 = 0							# Clear thread flag
-						GestDone = True						# Break out of Gesture funtion
-						## Close the thread ##
-						#t1.join()							# ERROR - reference
-						
-						## Update GUI information ##
-						update_label()
-					
-					btn_state1 = 1							# Back to "START COUNTER"
+					#print("change button")							# REMOVE
+					btn_state1 = 0									# Back to "START SCAN"
 			
 			
 			################################
@@ -465,22 +503,26 @@ def main():
 				global qrData									# QR Data to create JSON string
 				global iotJSON									# returned JSON string
 				
-				print("PCB: {}".format(Cnt))
-
-				iotJSON = createJSON(qrData, Cnt)				# Convert to JSON format
-				#print("JSON Created...")						# REMOVE
-				#print("{}".format(iotJSON)) 					# REMOVE
-					
+				#print(qrData)									# REMOVE - view string BEFORE conversion
+				
+				## Convert Data to JSON format ##
+				iotJSON = createJSON(qrData, Cnt)
+				
+				## REMOVE ##
+				print("PCB: {}".format(iotJSON))				# REMOVE - view string AFTER conversion
+				#print("STAGE: {}".format(dataDict['STAGE']))
+				#print("DATE: {}".format(dataDict['DATE']))
+				
 				## Publish JSON Data to IoT Core ##
-				#iot_publish(iotJSON, dataDict['STAGE'])
-				iot_publish(iotJSON, 'THRU')
+				#iot_publish(iotJSON, dataDict['STAGE'])		# Pass stage??
+				#iot_publish(iotJSON, 'THRU')					# TEST
 
-				print("PUBLISHED...")							# REMOVE
+				print("[INFO] PUBLISHED...")					# REMOVE
 			
 			
-			####################################
-			## DATA CLASS FOR JSON CONVERSION ##
-			####################################
+			#####################
+			## JSON DATA CLASS ##
+			#####################
 			class OmniData:
 				CLIENT 	= 'TSE'
 				PROJECT = 515151515
@@ -497,12 +539,12 @@ def main():
 
 
 			##################################
-			## UPDATE ALL INFO DATA 		## 
+			## 	   UPDATE ALL INFO DATA 	##
 			## CREATE JSON STRING AND STORE	## 
 			##################################
 			def createJSON(qrData, Cnt):
 				global firstScan									# only store certain data on first scan
-				global projectStat									# project start or stop
+				global strtstp										# project start or stop
 				global staffID										# Extracted Staff ID from QR Scan2
 				global dataDict
 				global staffKit										# kitID[0] OR staffID[1]
@@ -512,24 +554,27 @@ def main():
 				#current_date = now.strftime("%Y-%m-%d")			# Extract date
 				current_time = now.strftime("%H:%M:%S")				# Extract time
 				
-				
-				
 				## Update only on 1st QR Scan ##
 				if firstScan == 0:
 					## Extract data with ',' delimiter - Directly into Global Disctionary ##
 					dataDict = dict(i.split('=') for i in qrData.split(','))
 					firstScan = 1									# RETURN TO '0' EVERY TIME SCAN IS OPENED 
 					current_date = now.strftime("%Y-%m-%d")			# Extract date
-					dataDict['STAFF_ID'] = staffID						# Update Staff ID		- on startup
+					dataDict['STAFF_ID'] = staffID					# Update Staff ID		- on startup
 					dataDict['DATE'] = current_date					# insert current date
-					dataDict['TIME'] = current_time					# insert current date
 
-				## Depending on KIT or STAFF qrScan ##
-				dataDict['START'] = current_time					# insert current time
-				dataDict['STOP']  = current_time					# insert current time
+				## @start click ##
+				if strtstp == 0:
+					strtstp = 1
+					dataDict['START'] = current_time				# insert current time
+					dataDict['STOP']  = "00:00"						# blank stop time
+				## @stop click ##
+				elif strtstp == 2:
+					dataDict['STOP']  = current_time				# insert current time
 
-				## Continuously Update PCB Value ##
+				## Continuously Update these: ##
 				dataDict['BOARDS'] = Cnt							# Update board count 	- every count
+				dataDict['TIME'] = current_time						# insert upload time
 
 				## Mirror dictionary data to data class ##
 				## EDIT: Use loop to import new data ##
@@ -582,9 +627,7 @@ def main():
 			def iot_publish(message_json, stage):
 				JWT_token = create_jwt(project_id, ssl_private_key, ssl_algorithm)
 				token = JWT_token.decode('utf8')
-				
-				#message_string = message_dict					# already converted to JSON	
-				
+								
 				## Python3 ##
 				#base64_message = base64.urlsafe_b64encode(bytes(message_string,'utf8'))
 				## Python2 ##
@@ -609,9 +652,6 @@ def main():
 				}
 				
 				response = requests.request("POST", url, headers=headers, data = payload)
-				
-				#print(response.text)
-				#print("published...")
 
 
 			############################
@@ -644,15 +684,6 @@ def main():
 				## Update Info Label ##
 				label_6.config(text="{}".format(info), font = "Helvetica 10")
 			
-			
-			#########################
-			## BRING WINDOW TO TOP ##
-			#########################
-			"""
-			def lift_window():
-				print("Lift Window")
-				win.lift()
-			"""
 			
 			###############################
 			## NUMERICAL EXIT CODE ENTRY ##
@@ -766,8 +797,8 @@ def main():
 
 			# SETUP WINDOW PARAMTERS ##
 			win.title("OMNIGO")							# define window title
-			#win.geometry('480x320+0+0')				# define screen size	- swap
-			win.attributes("-fullscreen", True)			# full screen GUI		- swap
+			#win.geometry('480x320+0+0')					# define screen size	- swap
+			win.attributes("-fullscreen", True)		# full screen GUI		- swap
 			win.configure(background = "gray15")		# set colour
 			
 			# DROP-DOWN MENU ##
@@ -780,8 +811,6 @@ def main():
 						bg		= "gray15",
 						fg 		= "gray64",)
 			opt.pack(side="top", anchor="nw")
-			
-			# EXIT BUTTON - REMOVED ##
 			
 			# OMNIGO TITLE ##
 			label_2 = Label(win, 

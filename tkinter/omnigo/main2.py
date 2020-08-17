@@ -6,6 +6,7 @@ Author:
 
 Description:
 	THIS VERSION IS FOR 4 DEMO UNITS - (MAKE FULL SCREEN)
+	GCP MQTT to ~MY~ GC-Platform
 	Main control GUI for Omnigo IoT project
 	Raspberry Pi Zero + PiCamera + APDS9960
 
@@ -21,7 +22,7 @@ Primary Functions:
 	Exit code required to leave GUI						- [complete]
 	Drop-down menu stage selector						- [complete]
 	JSON data format conversion							- [complete]
-	Upload data to Google Cloud IoT-Core 				- [complete]
+	Upload data to Google Cloud IoT-Core [MINE]			- [complete]
 
 Changes required:
 	cv2 Camera window NOT destroyed						- [incomplete]
@@ -29,10 +30,10 @@ Changes required:
 	Re-Scan ID's later?									- [incomplete]
 		
 Notes:
+	GUI EXIT CODE: 3529# ('*' to Delete)
 	QR-Code scanner:
 		-> exits after 3x confirmed QR reads
 		-> 'q' exit prematurely
-		-> EXIT CODE: 3529# ('*' to Delete)
 	GCP connectivity requires:
 		-> 'jwt_maker.py' to create JWT security key
 		-> ssl security files: 
@@ -97,7 +98,7 @@ def main():
 	global thr1										# thread flag
 	global thr2										# thread flag
 	global Cnt										# PCB count value
-	global GestDone									# Exit Gesture flag
+	global GestDone									# Exit Gesture mode flag
 	global pin	 									# Exit Code Value
 	global CodeDone									# Exit Code - flag
 	global qrData									# Get QR Data
@@ -165,7 +166,7 @@ def main():
 				vs = VideoStream(usePiCamera=True).start()
 				time.sleep(2.0)									# Allow video to stabalise
 				cv2.namedWindow(winName)
-				cv2.moveWindow(winName, 1,1)
+				cv2.moveWindow(winName, 20,20)
 								
 				## Loop over the frames from the video stream #
 				## Time-Out after 35 secs ##
@@ -173,7 +174,6 @@ def main():
 					## grab the frame from the threaded video stream and r
 					## resize it to have a maximum width of 400 pixels
 					frame = vs.read()
-					frame = imutils.rotate(frame, 90)			# rotate 90 due to camera mount
 					frame = imutils.resize(frame, width=400)
 				 
 					## find & decode the barcodes in each frame
@@ -215,10 +215,11 @@ def main():
 							elif done == "staff":
 								staffID = barcodeData			# store staff_ID
 								done = "y" 						# exit scan mode
-							
-							## QR Image - CHANGE INDICATOR ##
+							################################
+							## PAUSE AND CHANGE INDICATOR ##
+							################################
 							font = cv2.FONT_HERSHEY_SIMPLEX
-							text = "~DONE~"
+							text = "DONE!!"
 							textsize = cv2.getTextSize(text, font, 1, 2)[0]
 							
 							## Get coords based on boundry ##
@@ -266,48 +267,20 @@ def main():
 				"""
 				vs.stop()										# stop video stream
 				cv2.destroyAllWindows()							# NOT destroying??
-				win.lift()
+				lift_window()									# Put GUI on the top
 				
 			
-			#########################
-			## FAKE COUNTER - DEMO ##
-			#########################
-			def fake_gesture():
-				global Cnt					# Double defined?
-				global GestDone				# Exit Gesture loop
-				
-				Cnt = 0						# initialised
-				sendCnt = 0					# Could make global?
-				GestDone = False
-
-				## Button click to exit? ##
-				while GestDone == False:
-					## SWIPE ##
-					Cnt += 1				# increment board count
-
-					## Continuously update GUI Label ##
-					update_label()
-						
-					## ON EVERY 3RD COUNT ##
-					sendCnt += 1
-					if sendCnt == 3:
-						handleData(Cnt)
-						sendCnt = 0
-
-					time.sleep(2)			# every 2 seconds
-
-
 			#####################
 			## GESTURE COUNTER ##
 			#####################
 			def get_gesture():
 				global Cnt					# Double defined?
-				global GestDone				# Exit Gesture loop
+				global GestDone				# Exit Gesture flag
 				Cnt = 0						# Double defined?
 				direct = 'none'				# Direction of swipe
-				sendCnt = 0					# Could make global?
-
-				GestDone = False			# initialise on function call
+				## Temporary? ##
+				GestDone = False			# 
+				sendCnt = 0					# 
 				
 				dirs = {
 					APDS9960_DIR_NONE:  "none",
@@ -325,9 +298,7 @@ def main():
 					print("CAPTURE GESTURES:")						# remove
 					print("=================")						# remove
 					apds.enableGestureSensor()
-					
-					## EXIT the Gesture Thread ? ##
-					while GestDone == False:						# while True:
+					while True:
 						time.sleep(0.5)
 						if apds.isGestureAvailable():
 							motion = apds.readGesture()
@@ -335,29 +306,28 @@ def main():
 							#print("Gesture = {}".format(direct))	# remove
 							
 							if direct == "left":
-								Cnt += 1					# May need upper limit?
+								Cnt += 1				# May need upper limit?
 							
 							elif direct == "up":
-								Cnt += 1					# May need upper limit?
+								Cnt += 1				# May need upper limit?
 							
 							elif direct == "right":
-								if Cnt > 0:					# Avoid negative situations
+								if Cnt > 0:				# Avoid negative situations
 									Cnt -= 1
 							
 							elif direct == "down":
-								if Cnt > 0:					# Avoid negative situations
+								if Cnt > 0:				# Avoid negative situations
 									Cnt -= 1
 							
 							## Continuously update GUI Label ##
 							update_label()
 							
-							## ON EVERY 3RD COUNT ##
+							## ON EVERY COUNT ##
+							handleData(Cnt, sendCnt)
 							sendCnt += 1
 							if sendCnt == 3:
 								sendCnt = 0
-								handleData(Cnt, sendCnt)
-						
-
+							
 				## Do before exiting Gesture Mode ##
 				finally:
 					## Zero Counter - On Next Count ##
@@ -389,8 +359,7 @@ def main():
 				
 				## Start new thread each time - Counter ##
 				if thr1 == 0:
-					#t1 = threading.Thread(target=get_gesture)	# Not started yet
-					t1 = threading.Thread(target=fake_gesture)	# Not started yet
+					t1 = threading.Thread(target=get_gesture)	# Not started yet
 					threads.append(t1)							# for multiple threads
 				
 				## Start new thread each time - ID Scan ##
@@ -455,13 +424,24 @@ def main():
 			## CREATE JSON DATA STRUCTURE ##
 			## PUBLISH TO GCP VIA MQTT	  ##
 			################################
-			def handleData(Cnt):
+			def handleData(Cnt, sendCnt):
 				global qrData									# QR Data to create JSON string
 				global iotJSON									# returned JSON string
 				
-				iotJSON = createJSON(qrData, Cnt)			# Convert to JSON format
-				iot_publish(iotJSON)						# Publish JSON Data
-				print("PUBLISHED...")						# REMOVE
+				print("PCB: {}".format(Cnt))					# REMOVE
+				
+				## On every 3rd count 	 ##
+				## Avoid over-publishing ##
+				if sendCnt == 2:
+					# JSON update - [count]
+					
+					iotJSON = createJSON(qrData, Cnt)			# Convert to JSON format
+					print("JSON Created...")					# REMOVE
+					#print("{}".format(iotJSON)) 				# REMOVE
+					
+					#print("Publish GCP!")						# REMOVE
+					iot_publish(iotJSON)						# Publish JSON Data
+					print("PUBLISHED...")						# REMOVE
 			
 			
 			####################################
@@ -498,6 +478,8 @@ def main():
 				#current_date = now.strftime("%Y-%m-%d")			# Extract date
 				current_time = now.strftime("%H:%M:%S")				# Extract time
 				
+				
+				
 				## Update only on 1st QR Scan ##
 				if firstScan == 0:
 					## Extract data with ',' delimiter - Directly into Global Disctionary ##
@@ -509,15 +491,11 @@ def main():
 					dataDict['TIME'] = current_time					# insert current date
 
 				## Depending on KIT or STAFF qrScan ##
-				# if start/stop:
 				dataDict['START'] = current_time					# insert current time
-				# else:
 				dataDict['STOP']  = current_time					# insert current time
 
 				## Continuously Update PCB Value ##
 				dataDict['BOARDS'] = Cnt							# Update board count 	- every count
-
-				#print(dataDict)									# REMOVE
 
 				## Mirror dictionary data to data class ##
 				## EDIT: Use loop to import new data ##
@@ -535,13 +513,9 @@ def main():
 				OmniData1.REASON 	= dataDict['REASON']
 				OmniData1.SERIAL 	= dataDict['SERIAL']
 
-				#print(OmniData1.__dict__)							# REMOVE
-
 				## Convert Data Class to JSON string ##
 				## NOTE: Data fields are not created in the same order ##
 				jsonStr = json.dumps(OmniData1.__dict__)
-
-				#print(jsonStr)										# REMOVE
 
 				## Pass JSON string back ##
 				return jsonStr
@@ -598,7 +572,7 @@ def main():
 				## Actually publish the Data ## 
 				client.publish(_MQTT_TOPIC, payload, qos=1)
 				## View the payload data ##
-				print("{}\n".format(payload))					# REMOVE
+				print("{}\n".format(payload))				
 				time.sleep(1)
 				client.loop_stop()
 				"""
@@ -609,7 +583,7 @@ def main():
 					
 					## Actually publish the Data ## 
 					client.publish(_MQTT_TOPIC, payload, qos=1)
-					#print("{}\n".format(payload))				# REMOVE			
+					print("{}\n".format(payload))				# REMOVE			
 					
 					time.sleep(1)								# REQUIRED ? ?
 					client.loop_stop()							# Close loop
@@ -646,6 +620,14 @@ def main():
 				label_6.config(text="{}".format(info), font = "Helvetica 10")
 			
 			
+			#########################
+			## BRING WINDOW TO TOP ##
+			#########################
+			def lift_window():
+				print("Lift Window")
+				win.lift()
+			
+			
 			###############################
 			## NUMERICAL EXIT CODE ENTRY ##
 			###############################
@@ -677,7 +659,7 @@ def main():
 				else:
 					pin += value							# Add digit to pin
 				
-				#print("Current: " + pin)					# show input code
+				print("Current: " + pin)					# show input code
 			
 			
 			##########################
@@ -758,8 +740,8 @@ def main():
 
 			# SETUP WINDOW PARAMTERS ##
 			win.title("OMNIGO")							# define window title
-			#win.geometry('480x320+0+0')					# define screen size	- swap
-			win.attributes("-fullscreen", True)		# full screen GUI		- swap
+			win.geometry('480x320+0+0')					# define screen size	- swap
+			#win.attributes("-fullscreen", True)		# full screen GUI		- swap
 			win.configure(background = "gray15")		# set colour
 			
 			# DROP-DOWN MENU ##

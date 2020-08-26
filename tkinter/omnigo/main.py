@@ -6,8 +6,8 @@ Author:
 
 --------------------------------------
 FINAL CLEANUP:
-	Remove all unneccessary prints
 	Check for unused variables/flags
+	Remove all unneccessary prints
 	Remove commented lines
 	Remove test functions
 --------------------------------------
@@ -32,14 +32,22 @@ Primary Functions:
 	JSON data format conversion							- [complete]
 	Upload data to Google Cloud IoT-Core [SIATIK]		- [complete]
 
-Change from main17:
-	Gesture Sensor Proximity Settings					- [incomplete]
-	Video Window - Full Screen							- [incomplete]
+Change from main18:
+	STOP time on every publish - removed "last publish"	- [complete]
+	Add in board count field - ['COUNT'] 				- [complete]
+	Network Error Exception	- NB!						- [complete]
+	Power-Out Counter Recovery (fail.txt)				- [complete]
+	Stage change pin code (same as exit)				- [incomplete]
+	Improve Gesture Sensor Proximity					- [incomplete]
+	QR time-out -> back to scan button					- [incomplete]
+	Remove both test functions							- [incomplete]
+	Check video frame - FULL SCREEN						- [incomplete]
 
 Notes:
 	GUI EXIT CODE: 3529# ('*' to Delete)
 	QR-Code scanner:
-		-> exits after 3x confirmed QR reads
+		-> Exits after 3x confirmed QR reads
+		-> Times out after 35 seconds
 		-> 'q' exit prematurely
 	GCP connectivity requirements:
 		-> 'jwt_maker.py' to create JWT security key
@@ -61,11 +69,11 @@ from functools import partial			# passing argument to button?
 
 ## MULTI-TASKING FUNCTIONS ##
 import threading						# Multi-Threading
-import multiprocessing
+#import multiprocessing					# No longer necessary
 
 ## GENERAL MAINTENANCE ##
-import sys								# Possibly remove ? ? ?
-import time								# time travel
+import sys, os							# System & Operating System tools
+import time								# Supplies 1.21 JigaWatts
 import traceback						# Error logging
 import datetime							# Get real-time data
 
@@ -77,16 +85,16 @@ import imutils 							# A little slice of Magic
 import cv2								# When you stare into the matrix...
 
 ## GESTURE IMPORTS ##
-from apds9960.const import *
-from apds9960 import APDS9960
-import smbus
+from apds9960.const import *			# just
+from apds9960 import APDS9960			# apds
+import smbus							# things
 
 ## JSON & GCP ##
 import json								# JSON conversion functions
 import jwt								# Create JSON security token 
 import paho.mqtt.client as mqtt			# MQTT connectivity
-import requests							# 
-import base64							# 
+import requests							# Data Publishing Protocols
+import base64							# Data type conversion
 
 
 ###################
@@ -115,13 +123,14 @@ def main():
 	global qrData									# Get QR Data
 	global iotJSON									# Converted to JSON format
 	global firstScan								# (createJSON) - store certain data on first scan
-	global strtstp						# (createJSON) - project start or stop
+	global strtstp									# (createJSON) - project start or stop
 	global staffID									# (createJSON) - Extracted Staff ID
-	
+	global fail										# 
+
 	lay=[]											# layering windows??
 	CodeDone = False								# Exit Code - negative
 	pin  = ''										# Exit Code - blank string
-	QRDone   = False								# QR Scan 		- flag
+	QRDone   = False								# QR Scan 	- flag
 	Cnt = 0											# PCB Counter start value
 	info = "feedback..."							# GUI feedback information - OPTIONAL
 	ID_match = 0									# ID Scan - initial staff ID status
@@ -129,26 +138,30 @@ def main():
 	iotJSON = "upload"								# initialise to string format
 	firstScan = 0									# initialise for 1st data update
 	staffKit = 0									# initialise to kit_ID 1st
+	#failFile = '/home/pi/main/fail.txt'				# If count is interupted - continue
+	failFile = '/home/pi/omnicode/main/fail.txt'
 	
 	## GCP PROJECT VARIABLES - SIATIK ##
-	ssl_private_key 		 = './certs/rsa.pem'	# '<ssl-private-key-filepath>'
+	#ssl_private_key 		 = './certs/rsa.pem'	# '<ssl-private-key-filepath>'
+	ssl_private_key 		 = '/home/pi/main/certs/rsa.pem'# '<ssl-private-key-filepath>'
 	ssl_algorithm            = 'RS256'              # '<algorithm>' -> RS256 or ES256
 	project_id               = 'omnigo'             # '<GCP project id>'
 	
 	## Project Information Dictionary ##
 	global dataDict
-	dataDict = {'CLIENT'	: 'xxx',			# Client Name
-				'PROJECT'	: '0',				# Project ID
-				'STAGE'		: 'xxx',			# Operational Stage (setup/smt/thru/insp)
-				'BOARDS'	: '0',				# Number PC-Boards
-				'PANELS'	: '0',				# Number of panels
-				'STAFF_ID'	: '0',				# Staff member ID number
-				'DATE'		: '00-00-2020',		# Project start date
-				'TIME'		: '00:00',			# Time of each board swiped
-				'START'		: '00:00',			# Stage - start time 
-				'STOP'		: '00:00',			# Stage - end time
-				'REASON'	: 'null',			# Reason the stage was stopped
-				'SERIAL'	: '0' }				# Barcode serial number - Later
+	dataDict = {'CLIENT'	: 'xxx',				# Client Name
+				'PROJECT'	: '0',					# Project ID
+				'STAGE'		: 'xxx',				# Operational Stage (setup/smt/thru/insp)
+				'BOARDS'	: '0',					# Total Number PC-Boards
+				'PANELS'	: '0',					# Total Number of panels
+				'COUNT'		: '0',					# Actual Board Count
+				'STAFF_ID'	: '0',					# Staff member ID number
+				'DATE'		: '00-00-2020',			# Project start date
+				'TIME'		: '00:00',				# Time of each board swiped
+				'START'		: '00:00',				# Stage - start time 
+				'STOP'		: '00:00',				# Stage - end time
+				'REASON'	: 'null',				# Reason the stage was stopped
+				'SERIAL'	: '0' }					# Barcode serial number - Later
 
 	## Get the current time/date ##
 	cur_time = datetime.datetime.utcnow()
@@ -175,7 +188,7 @@ def main():
 					if ender == 3:
 						QRDone = True
 				
-				qrData = "CLIENT=Omnigo,PROJECT=123456,STAGE=SETUP,BOARDS=1000,PANELS=50,STAFF_ID=357,TIME=00:00,DATE=01-01-2000,START=00:00,STOP=00:00,REASON=NULL,SERIAL=987654321"
+				qrData = "CLIENT=Omnigo,PROJECT=123456,STAGE=SETUP,BOARDS=1000,PANELS=50,COUNT=0,STAFF_ID=357,TIME=00:00,DATE=01-01-2000,START=00:00,STOP=00:00,REASON=NULL,SERIAL=987654321"
 				staffID = 357	# fake staff ID
 				firstScan = 0	# update first data
 				print("Extracted Data String")
@@ -218,6 +231,40 @@ def main():
 				handleData(Cnt)				# create & publish
 				print("Count Complete")		# REMOVE
 			
+			#########################
+			## COUNT FAILURE CHECK ##
+			#########################
+			def failCheck(Cnt):
+				exists = False										# file exists or not?
+				contCnt = 'x'										# stored json string
+				
+				## Try to read file ##
+				try:												# Skip if file doesn't exist
+					file = open(failFile, 'r') 						# Open to read file
+					contCnt = file.read()							# read file contents
+					#print("STORED: {}".format(contCnt))			# REMOVE
+					file.close()									# Close the file
+				## Create - No File to Read ##
+				except:
+					exists = True									# Avoid writing twice if file exists
+					contCnt = '0'									# Set to Zero
+					#print("STORE 0")								# REMOVE
+					file = open(failFile,"w")						# Create/Open file then write data 
+					file.write(contCnt) 							# write first zero
+					file.close()									# Exit the opened file
+				## Seen File - Now overwrite ##
+				if exists == False:									# overwrite data after printing contents
+					if  Cnt != 0:									# Only if count is already going
+						#print("STORE {}".format(str(Cnt)))			# REMOVE
+						file = open(failFile,"w")					# Open file then Overwrite data 
+						file.write(str(Cnt))						# Write new string
+						file.close()								# Exit the opened file
+				## Notify File Created - ROMOVE ##
+				#else:												# 
+				#	print "Start Click -> Create New Fail File!"	# REMOVE
+				
+				return contCnt										# Return last count value
+			
 			
 			################
 			## QR SCANNER ##
@@ -231,14 +278,13 @@ def main():
 				done = "kit"									# which scan is complete
 				staffKit = False								# Which ID - kit_ID[0] / Staff_ID[1]
 				
-				
 				## initialize video stream & warm up camera sensor
 				print("[INFO] starting video stream...")
 				vs = VideoStream(usePiCamera=True).start()
 				time.sleep(2.0)									# Allow video to stabalise
 				cv2.namedWindow(winName)
 				cv2.moveWindow(winName, 1,1)
-								
+				
 				## Loop over the frames from the video stream #
 				## Time-Out after 35 secs ##
 				while time.time()-init_time < 35:
@@ -320,10 +366,12 @@ def main():
 						break
 					## if ID confirmed 3 times ##
 					elif done == "y":
+						#print(qrData)							# REMOVE
+						#print(staffID)							# REMOVE
 						break
 				
 				## close the output CSV file do a bit of cleanup ##
-				print("[INFO] cleaning up...")
+				print("[INFO] cleaning up...")					# REMOVE
 				vs.stop()										# stop video stream
 				cv2.destroyAllWindows()							# NOT destroying??
 				win.lift()										# Put GUI on the top
@@ -338,7 +386,6 @@ def main():
 				global GestDone				# Exit Gesture loop
 				Cnt = 0						# Double defined?
 				direct = 'none'				# Direction of swipe
-				sendCnt = 0					# Could make global?
 
 				GestDone = False			# initialise on function call
 				
@@ -396,19 +443,20 @@ def main():
 							## Continuously update GUI Label ##
 							update_label()
 							
-							## ON EVERY 3RD COUNT ##
-							sendCnt += 1
-							if sendCnt == 3:
-								sendCnt = 0
-								handleData(Cnt)
+							## Publish on swipe ##
+							handleData(Cnt)
 						
 
 				## Do before exiting Gesture Mode ##
 				finally:
+					## Removed last publish 	  ##
+					## STOP time already included ##
+					"""
 					print("Last PUBLISH")					# REMOVE 
 					## Publish Stop Time ##
 					strtstp = 2								# stop time
 					handleData(Cnt)							# create & publish
+					"""
 					## Zero Counter - On Next Count ##
 					Cnt = 0 								# zero the count value
 					update_label()							# update the GUI label
@@ -435,11 +483,11 @@ def main():
 				if btn_state1 == 0:
 					## Update GUI Labels ##
 					bigButton["text"] = "START\nCOUNT"				# Change Button Title
-					info = "Info: Video Window Starting..."
+					info = "INFO: Video Scan Complete"				# 
 					update_label()									# Update GUI info bar
 					## Start QR Scan ##
-					QR_Scan()										# Scan (2x) QR Codes
-					#fake_scan()									# REMOVE - testing
+					#QR_Scan()										# Scan (2x) QR Codes
+					fake_scan()									# REMOVE - testing
 					btn_state1 = 1									# To "START COUNTER"
 				
 				#########################
@@ -454,12 +502,20 @@ def main():
 						t1 = threading.Thread(name='daemon', target=get_gesture)	# Not started yet
 						#t1 = threading.Thread(name='daemon', target=fake_gesture)	# REMOVE - testing
 						t1.setDaemon(True)							# Make Daemonic
-						
+					
 					## Update GUI Labels ##
 					bigButton["text"] = "STOP\nCOUNT"				# button label change
-					info = "Info: Start Counting..."				# User info
-					Cnt = 0											# zero counter
-					
+					info = "INFO: Counting..."						# User info
+					#Cnt = 0										# zero counter
+
+					## Check fail file for previous count value	 ##
+					## Create new or start count from last value ##
+					fail = failCheck(Cnt)							# Returns stored value for next count
+					if fail != '0':
+						Cnt = int(fail)								# could do this in the function
+					else:
+						Cnt = 0										# zero counter
+
 					## If thread not started (can't start twice?) ##
 					if thr1 == 1:
 						#print("Start COUNT Thread")				# REMOVE
@@ -475,7 +531,6 @@ def main():
 				## END COUNT ROUTINE #
 				######################
 				elif btn_state1 == 2:
-					#print("STOP COUNT")							# REMOVE
 					bigButton["text"] = "START\nSCAN"
 					info = "Info: Counting Complete"
 										
@@ -484,9 +539,11 @@ def main():
 						thr1 = 0									# Clear thread flag
 						#t1.join()									# FREEZE GUI
 						GestDone = True								# Break out of Gesture funtion
+						os.remove(failFile)							# Delete Fail File
 					else:
 						print("Due to the immortal thread,")
 						print("We should never come here...")
+						print("Ther can be only ONE ! !")
 						
 					## Update GUI information ##
 					update_label()
@@ -503,19 +560,17 @@ def main():
 				global qrData									# QR Data to create JSON string
 				global iotJSON									# returned JSON string
 				
-				#print(qrData)									# REMOVE - view string BEFORE conversion
-				
+				## Backup Count value ##
+				if Cnt != 0:
+					failCheck(Cnt)								# No need for stored count
+
 				## Convert Data to JSON format ##
-				iotJSON = createJSON(qrData, Cnt)
+				iotJSON = createJSON(qrData, Cnt)				# Returns JSON string
 				
-				## REMOVE ##
-				print("PCB: {}".format(iotJSON))				# REMOVE - view string AFTER conversion
-				#print("STAGE: {}".format(dataDict['STAGE']))
-				#print("DATE: {}".format(dataDict['DATE']))
+				#print("{}".format(iotJSON))					# REMOVE - view string AFTER conversion
 				
 				## Publish JSON Data to IoT Core ##
-				#iot_publish(iotJSON, dataDict['STAGE'])		# Pass stage??
-				#iot_publish(iotJSON, 'THRU')					# TEST
+				iot_publish(iotJSON, dataDict['STAGE'])			# Pass stage
 
 				print("[INFO] PUBLISHED...")					# REMOVE
 			
@@ -529,6 +584,7 @@ def main():
 				STAGE 	= 'NULL'
 				BOARDS 	= 0
 				PANELS 	= 0
+				COUNT	= 0
 				STAFF_ID = 000
 				DATE 	= '01-01-2020'
 				TIME 	= '00:00'
@@ -573,7 +629,7 @@ def main():
 					dataDict['STOP']  = current_time				# insert current time
 
 				## Continuously Update these: ##
-				dataDict['BOARDS'] = Cnt							# Update board count 	- every count
+				dataDict['COUNT'] = Cnt								# Update board count 	- every count
 				dataDict['TIME'] = current_time						# insert upload time
 
 				## Mirror dictionary data to data class ##
@@ -584,6 +640,7 @@ def main():
 				OmniData1.STAGE 	= dataDict['STAGE']
 				OmniData1.BOARDS 	= dataDict['BOARDS']
 				OmniData1.PANELS 	= dataDict['PANELS']
+				OmniData1.COUNT 	= dataDict['COUNT']
 				OmniData1.STAFF_ID 	= dataDict['STAFF_ID']
 				OmniData1.DATE 		= dataDict['DATE']
 				OmniData1.TIME 		= dataDict['TIME']
@@ -625,34 +682,56 @@ def main():
 			## CONNECT VIA MQTT AND PUBLISH ##
 			##################################
 			def iot_publish(message_json, stage):
-				JWT_token = create_jwt(project_id, ssl_private_key, ssl_algorithm)
-				token = JWT_token.decode('utf8')
-								
-				## Python3 ##
-				#base64_message = base64.urlsafe_b64encode(bytes(message_string,'utf8'))
-				## Python2 ##
-				base64_message = base64.urlsafe_b64encode(bytes(message_json).encode('utf8'))
+				try:
+					JWT_token = create_jwt(project_id, ssl_private_key, ssl_algorithm)
+					token = JWT_token.decode('utf8')
+									
+					## Python3 ##
+					#base64_message = base64.urlsafe_b64encode(bytes(message_string,'utf8'))
+					## Python2 ##
+					base64_message = base64.urlsafe_b64encode(bytes(message_json).encode('utf8'))
+					
+					message = {"binary_data": base64_message.decode('utf8')}
+					
+					payload = json.dumps(message)
+					
+					if stage == 'SETUP':
+						url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-1:publishEvent'
+					elif stage == 'THRU':
+						url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-2:publishEvent'
+					elif stage == 'SMT':
+						url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-3:publishEvent'
+					elif stage == 'INSP':
+						url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-4:publishEvent'
+					
+					headers = {
+					'Authorization': 'Bearer {}'.format(token),
+					'Content-Type': 'application/json'
+					}
+					
+					response = requests.request("POST", url, headers=headers, data = payload)
+					response.raise_for_status()
 				
-				message = {"binary_data": base64_message.decode('utf8')}
-				
-				payload = json.dumps(message)
-				
-				if stage == 'SETUP':
-					url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-1:publishEvent'
-				elif stage == 'THRU':
-					url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-2:publishEvent'
-				elif stage == 'SMT':
-					url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-3:publishEvent'
-				elif stage == 'INSP':
-					url = 'https://cloudiotdevice.googleapis.com/v1/projects/omnigo/locations/europe-west1/registries/omnigo-test/devices/omnigo-unit-4:publishEvent'
-				
-				headers = {
-				'Authorization': 'Bearer {}'.format(token),
-				'Content-Type': 'application/json'
-				}
-				
-				response = requests.request("POST", url, headers=headers, data = payload)
-
+				except requests.exceptions.HTTPError as errh:
+					print ("Http Error:",errh)
+					info = "NETWORK ERROR: 1"					# message info
+					update_label()								# Update GUI info bar
+					
+				except requests.exceptions.ConnectionError as errc:
+					print ("Error Connecting:",errc)
+					info = "NETWORK ERROR: 2"					# message info
+					update_label()								# Update GUI info bar
+					
+				except requests.exceptions.Timeout as errt:
+					print ("Timeout Error:",errt)
+					info = "NETWORK ERROR: 3"					# message info
+					update_label()								# Update GUI info bar
+					
+				except requests.exceptions.RequestException as err:
+					print ("Oops: Something Else",err)
+					info = "NETWORK ERROR: 4"					# message info
+					update_label()								# Update GUI info bar
+						
 
 			############################
 			# DROP DOWN MENU CALLBACK ##
@@ -797,8 +876,8 @@ def main():
 
 			# SETUP WINDOW PARAMTERS ##
 			win.title("OMNIGO")							# define window title
-			#win.geometry('480x320+0+0')					# define screen size	- swap
-			win.attributes("-fullscreen", True)		# full screen GUI		- swap
+			#win.geometry('480x320+0+0')				# set screen size - swap
+			win.attributes("-fullscreen", True)			# full screen GUI - swap
 			win.configure(background = "gray15")		# set colour
 			
 			# DROP-DOWN MENU ##
@@ -811,6 +890,8 @@ def main():
 						bg		= "gray15",
 						fg 		= "gray64",)
 			opt.pack(side="top", anchor="nw")
+			
+			# EXIT BUTTON - REMOVED ##
 			
 			# OMNIGO TITLE ##
 			label_2 = Label(win, 

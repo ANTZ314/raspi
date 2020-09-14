@@ -13,7 +13,6 @@ FINAL CLEANUP:
 --------------------------------------
 
 Description:
-	THIS VERSION IS FOR 4 DEMO UNITS - (MAKE FULL SCREEN)
 	GCP MQTT to SIATIK GC-Platform
 	Main control GUI for Omnigo IoT project
 	Raspberry Pi Zero + PiCamera + APDS9960
@@ -31,24 +30,22 @@ Primary Functions:
 	Drop-down menu stage selector						- [complete]
 	JSON data format conversion							- [complete]
 	Upload data to Google Cloud IoT-Core [SIATIK]		- [complete]
+	Indicator LED (counting=GREEN)						- [complete]
 
-Change from main18:
-	STOP time on every publish - removed "last publish"	- [complete]
-	Add in board count field - ['COUNT'] 				- [complete]
-	Network Error Exception	- NB!						- [complete]
-	Power-Out Counter Recovery (fail.txt)				- [complete]
-	Stage change pin code (same as exit)				- [incomplete]
-	Improve Gesture Sensor Proximity					- [incomplete]
-	QR time-out -> back to scan button					- [incomplete]
+Change from main20:
+	Kit / Staff ID can be scanned any order				- [incomplete]
+	Continue counting & Catch up publishes				- [incomplete]
+	QR time-out -> back to scan button					- [complete]
 	Remove both test functions							- [incomplete]
 	Check video frame - FULL SCREEN						- [incomplete]
 
 Notes:
-	GUI EXIT CODE: 3529# ('*' to Delete)
+	GUI EXIT CODE: 	3529# ('*' to Delete)
+	STAGE CODE: 	2580# ('*' to Delete)
 	QR-Code scanner:
 		-> Exits after 3x confirmed QR reads
-		-> Times out after 35 seconds
-		-> 'q' exit prematurely
+		-> Time-Out after 35 seconds
+		-> 'q' to exit prematurely
 	GCP connectivity requirements:
 		-> 'jwt_maker.py' to create JWT security key
 		-> ssl security files: 
@@ -76,8 +73,9 @@ import sys, os							# System & Operating System tools
 import time								# Supplies 1.21 JigaWatts
 import traceback						# Error logging
 import datetime							# Get real-time data
+from gpiozero import LED 				# Import GPIO library
 
-## 	QR CODE IMPORTS ##
+## QR CODE IMPORTS ##
 from picamera import PiCamera			# Testing the Camera
 from imutils.video import VideoStream	# Video access library
 from pyzbar import pyzbar				# Decoding the QR Code
@@ -108,6 +106,11 @@ OptionList = ["SETUP","THRU","SMT","INSP","EXIT"] 	# Drop Down Menu Options
 port = 1
 bus  = smbus.SMBus(port)
 apds = APDS9960(bus)
+
+## Define Indicator LED BCM.GPIO pins ##
+## NOTE: GPIO 12/13/16 are unusable?? ##
+RED 	= LED(5)									# BUSY
+GREEN 	= LED(6)									# FREE
 
 
 ###################
@@ -179,6 +182,7 @@ def main():
 				global staffID
 				global firstScan
 				global projStat
+				global qr_time
 				
 				## Button click to exit? ##
 				while QRDone == False:
@@ -194,6 +198,7 @@ def main():
 				print("Extracted Data String")
 				ender = 0		# Go Again
 				QRDone = False	# Go Again
+				qr_time = True	# go to gest
 			
 			###############################
 			## DEMO FUNCTION - TEMPORARY ##
@@ -272,11 +277,13 @@ def main():
 			def QR_Scan():
 				global qrData									# globalise QR Data
 				global staffID									# Extracted Staff ID
-				init_time = time.time()							# no. of secs since 1 Jan 1970
-				winName = "SCAN-ID"								# name the video window
-				scnCnt = 0										# Number of ID confirmations
-				done = "kit"									# which scan is complete
-				staffKit = False								# Which ID - kit_ID[0] / Staff_ID[1]
+				global qr_time									# QR Scan timed out before complete
+				init_time = time.time()							# No. of secs since 1 Jan 1970
+				winName   = "SCAN-ID"							# Name the video window
+				scnCnt 	  = 0									# Number of ID confirmations
+				done 	  = "kit"								# which scan is complete
+				staffKit  = False								# Which ID - kit_ID[0] / Staff_ID[1]
+				qr_time   = False								# initially unsuccessful
 				
 				## initialize video stream & warm up camera sensor
 				print("[INFO] starting video stream...")
@@ -330,7 +337,10 @@ def main():
 						
 						## If QR Code is Read 3 times ##
 						if scnCnt == 5:
-							#scnCnt = 0							# clear the counter
+							
+							## Check if Staff ID or Kit ID ##
+							
+							
 							if done == "kit":
 								qrData = barcodeData			# Copy QR Data
 								done = "staff"					# exit the loop
@@ -366,6 +376,7 @@ def main():
 						break
 					## if ID confirmed 3 times ##
 					elif done == "y":
+						qr_time = True							# Completed successfully
 						#print(qrData)							# REMOVE
 						#print(staffID)							# REMOVE
 						break
@@ -473,6 +484,7 @@ def main():
 				## ID Scanner ##
 				global btn_state1									# changed to tri-state
 				global info											# GUI info bar
+				global qr_time										# QR timed out?
 				## Threading ##
 				global thr1											# 1st thread flag
 				global t1											# thread object
@@ -483,12 +495,13 @@ def main():
 				if btn_state1 == 0:
 					## Update GUI Labels ##
 					bigButton["text"] = "START\nCOUNT"				# Change Button Title
-					info = "INFO: Video Scan Complete"				# 
+					info = "[INFO] Video Scan Complete"				# 
 					update_label()									# Update GUI info bar
 					## Start QR Scan ##
-					#QR_Scan()										# Scan (2x) QR Codes
-					fake_scan()									# REMOVE - testing
-					btn_state1 = 1									# To "START COUNTER"
+					QR_Scan()										# Scan (2x) QR Codes
+					#fake_scan()									# REMOVE - testing
+					if qr_time == True:
+						btn_state1 = 1								# To "START COUNTER"
 				
 				#########################
 				## START COUNT ROUTINE ##
@@ -505,9 +518,8 @@ def main():
 					
 					## Update GUI Labels ##
 					bigButton["text"] = "STOP\nCOUNT"				# button label change
-					info = "INFO: Counting..."						# User info
-					#Cnt = 0										# zero counter
-
+					info = "[INFO] Counting..."						# User info
+					
 					## Check fail file for previous count value	 ##
 					## Create new or start count from last value ##
 					fail = failCheck(Cnt)							# Returns stored value for next count
@@ -523,7 +535,10 @@ def main():
 						GestDone = False							# start loop
 						## BEWARE - THREAD IS IMMORTAL! ##
 						t1.start()									# start gesture thread
-						
+						## Indicate Count Busy ##
+						RED.off()
+						GREEN.on()
+					
 					update_label()									# Update GUI info
 					btn_state1 = 2									# To "STOP COUNTER"
 				
@@ -532,7 +547,7 @@ def main():
 				######################
 				elif btn_state1 == 2:
 					bigButton["text"] = "START\nSCAN"
-					info = "Info: Counting Complete"
+					info = "[INFO] Counting Complete"
 										
 					## If Gesture Thread is Running ##
 					if t1.isAlive():								#if thr1 == 2:
@@ -540,6 +555,9 @@ def main():
 						#t1.join()									# FREEZE GUI
 						GestDone = True								# Break out of Gesture funtion
 						os.remove(failFile)							# Delete Fail File
+						## Indicate Count Complete ##
+						GREEN.off()
+						RED.on()
 					else:
 						print("Due to the immortal thread,")
 						print("We should never come here...")
@@ -572,6 +590,12 @@ def main():
 				## Publish JSON Data to IoT Core ##
 				iot_publish(iotJSON, dataDict['STAGE'])			# Pass stage
 
+				## Indicate Published ##
+				GREEN.off()
+				RED.on()
+				time.sleep(0.2)
+				RED.off()
+				GREEN.on()
 				print("[INFO] PUBLISHED...")					# REMOVE
 			
 			
@@ -682,6 +706,8 @@ def main():
 			## CONNECT VIA MQTT AND PUBLISH ##
 			##################################
 			def iot_publish(message_json, stage):
+				global info								# update info bar with Errors
+				
 				try:
 					JWT_token = create_jwt(project_id, ssl_private_key, ssl_algorithm)
 					token = JWT_token.decode('utf8')
@@ -731,24 +757,20 @@ def main():
 					print ("Oops: Something Else",err)
 					info = "NETWORK ERROR: 4"					# message info
 					update_label()								# Update GUI info bar
-						
+					
 
 			############################
 			# DROP DOWN MENU CALLBACK ##
 			############################
 			def callback(*args):
-				global info 
-		
-				# Update info bar in 'main.py'
-				info = "Info: stage - {}".format(dropD.get())	# New 'info' message
-				update_label()									# Update GUI Info label
+				global info										# GUI Info Bar
 				
 				## Begin Exit Routine ##
 				if dropD.get() == "EXIT":
 					exitProgram()
 				## Update Stage to Dictionary ##
 				else:
-					dataDict['STAGE'] = dropD.get()
+					exitProgram()
 			
 			
 			###########################
@@ -768,9 +790,8 @@ def main():
 			## NUMERICAL EXIT CODE ENTRY ##
 			###############################
 			def code(value):
-				global pin									# 
-				global ExCode								# 
-
+				global pin									# A pin ninja
+				
 				## '*' Key presses ##
 				if value == '*':
 					## remove last digit from `pin` ##
@@ -780,15 +801,17 @@ def main():
 				elif value == '#':
 					## check pin ##
 					if pin == "3529":						# Set pin number here!
-						print("PIN OK")						# console - REMOVE
-						pin = ''							# clear `pin`
-						#ExCode = True 						# Set ExCode
+						print("EXIT PIN OK")				# REMOVE
+						pin = ''							# clear 'pin'
 						KeyPadExit(True)					# Close keypad window
+					elif pin == "2580":						# Second pin number
+						print("STAGE PIN OK")				# REMOVE
+						pin = ''							# clear 'pin'
+						KeyPadStage(True)
 					else:
-						print("INCORRECT PIN!")				# console - REMOVE
-						pin = ''							# clear `pin`
-						
-						# After 3 attempts - Close keypad window
+						print("INCORRECT PIN!")				# REMOVE
+						pin = ''							# clear 'pin'
+						# Note: After 3 attempts - Close keypad window?
 						KeyPadExit(False)					# must be repeatable
 
 				## Any digit keys pressed ##
@@ -807,7 +830,7 @@ def main():
 					['1', '2', '3'],    
 					['4', '5', '6'],    
 					['7', '8', '9'],    
-					['*', '9', '#'],    
+					['*', '0', '#'],    
 				]
 				## Create new Window ##
 				keyPadWin = Toplevel(win)
@@ -826,37 +849,53 @@ def main():
 			########################
 			## EXIT KEYPAD WINDOW ##
 			########################
-			def KeyPadExit(CodeDone):
-				global info										# App information
+			def KeyPadStage(stageDone):
+				global info								# App information
 				
-				print("[INFO] Destroy Window...")			# REMOVE
-				keyPadWin = lay[0]								# DON'T THINK THIS WORKING??
+				keyPadWin = lay[0]						# DON'T THINK THIS WORKING??
+				
+				dataDict['STAGE'] = dropD.get()			# Update 'Stage' Feild
+				## [INFO] Show new Stage ##
+				info = "[INFO] Stage: {}".format(dropD.get())
+				update_label()
+				## Destroy Keypad Window ##
+				keyPadWin.destroy()							
+				keyPadWin.update()						# -> Only works once? ? ?
+				print("Destroy Keypad")					# REMOVE
+
+			
+			########################
+			## EXIT KEYPAD WINDOW ##
+			########################
+			def KeyPadExit(CodeDone):
+				global info									# App information
+				
+				#print("[INFO] Destroy Window...")			# REMOVE
+				keyPadWin = lay[0]							# DON'T THINK THIS WORKING??
 				
 				if CodeDone == True:
 					print("[INFO] Quit Main Program!!")		# REMOVE
 					## Destroy All Windows ##
-					## NOT DESTROYING CV2 WINDOW ? ? ##
 					win.quit()
 					win.destroy()
 					sys.exit(0)
 				else:
 					## Info: Exit Failed ##
-					info = "Info: Exit Code Incorrect"			# New 'info' message
-					update_label()								# Update GUI Info label 
-					print("[INFO] Exit Code Incorrect")		# REMOVE
+					info = "[INFO] Code Incorrect"			# New 'info' message
+					update_label()							# Update GUI Info label
 						
 					## Destroy Keypad Window ##
 					keyPadWin.destroy()							
-					keyPadWin.update()							# --- Only works once? ? ?
-			
+					keyPadWin.update()						# -> Only works once? ? ?
+					print("Destroy Keypad")					# REMOVE
 			
 			##########################
 			## EXIT AND DESTROY GUI ##
 			##########################
 			def exitProgram():
 				global thr1										# Thread exitted correctly
-				global info										# App information
 				global ExCode									# code correct/incorrect - flag
+				global info										# App information
 				
 				ExCode = False									# Normally Blocked
 				
@@ -865,8 +904,11 @@ def main():
 					## Enter Exit Code ##
 					KeyPadWin()									# keypad input
 				else:
-					print("Still busy...")						# console - REMOVE
-
+					print("Still busy...")						# REMOVE
+					## Update Info Bar' ##
+					info = "[INFO] Count in Progress"			# New 'info' message
+					update_label()								# Update GUI Info label
+			
 
 			## INITIALISE NEW WINDOW ##
 			win = Tk()
@@ -876,8 +918,8 @@ def main():
 
 			# SETUP WINDOW PARAMTERS ##
 			win.title("OMNIGO")							# define window title
-			#win.geometry('480x320+0+0')				# set screen size - swap
-			win.attributes("-fullscreen", True)			# full screen GUI - swap
+			win.geometry('480x320+0+0')					# define screen size	- swap
+			#win.attributes("-fullscreen", True)		# full screen GUI		- swap
 			win.configure(background = "gray15")		# set colour
 			
 			# DROP-DOWN MENU ##
@@ -936,7 +978,7 @@ def main():
 							font 	= "Helvetica 30")
 			# INFORMATION ##
 			label_6 = Label(win, 
-							text	= "info: {}".format(info), 
+							text	= "[INFO] {}".format(info), 
 							fg 		= "OrangeRed2",
 							bg 		= "gray15",
 							font 	= "Helvetica 10")

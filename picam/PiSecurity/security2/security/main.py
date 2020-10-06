@@ -38,7 +38,8 @@ ap.add_argument("-c", "--conf", required=True,
 	help="path to the JSON configuration file")
 args = vars(ap.parse_args())
 
-# filter warnings, load the configuration and initialize the Dropbox client
+# filter warnings, load the configuration and initialize 
+# the Dropbox client
 warnings.filterwarnings("ignore")
 conf = json.load(open(args["conf"]))
 client = None
@@ -56,13 +57,14 @@ def main():
 	QUIT = quit1.quitClass()											# Shutdown class
 	
 	## FLAGS ##
-	start_flg = 1														# startp menu flag
-	option1   = 1														# Menu Option 1
-	option2   = 1														# Menu Option 2
-	confirm   = 0														# Selection flag
-	quit_flg  = 0														# quit button flag
-	store_flg = 0														# USB storage flag
-	menu 	  = 0														# Menu display flag
+	done_flg	= 0														# copy to USB flag
+	start_flg	= 1														# startp menu flag
+	option1		= 1														# Menu Option 1
+	option2		= 1														# Menu Option 2
+	confirm		= 0														# Selection flag
+	quit_flg	= 0														# quit button flag
+	store_flg	= 0														# USB storage flag
+	menu		= 0														# Menu display flag
 	cam_resourse = 0													# camera resourse clear flag
 	
 	img_cnt = 0															# captured image counter
@@ -157,10 +159,7 @@ def main():
 									print"STORING NOW..."
 									quit_flg  = 0						# quit off
 									store_flg = 1						# store on
-									OLED.OLEDdone()						# Completion Message
-									##################################
-									# Pause & Return flag to main menu
-									##################################
+									# ? ? ? ?
 								# NO
 								else:
 									print"STORAGE CANCELLED"
@@ -192,16 +191,24 @@ def main():
 						## DATA STORE TO USB ##
 						#######################
 						if store_flg == 1:
-							LEDS.Blink_Red1()
-							LEDS.Blink_Red1()
 							## If images folder Empty ##
 							if os.listdir(path2) == []:					# pass path to USB
 								print("FOLDER EMPTY")
+								OLED.OLEDusbfail()						# no usb message
 								LEDS.Blink_Red1()						# Indicate empty folder
 							else:
 								## If files & USB exist, move to USB ##
-								USB.usb_put(path1, path2)				# Move to USB destination
-								print("Moved to USB")
+								done_flg = USB.usb_put(path1, path2)	# Move to USB destination
+								
+								if done_flg == 1:
+									OLED.OLEDdone()						# Completion Message
+									print("Moved to USB")
+								else:
+									OLED.OLEDfail()						# indicate storage failure
+									print("FAILED ? ?")
+									##################################
+									# Pause & Return flag to main menu
+									##################################
 							
 							# Once complete -> back to stanbye mode
 							time.sleep(2)								# pause for message
@@ -210,6 +217,11 @@ def main():
 							option2 = 1									# flag to starting state
 							confirm = 0									# flag to starting state
 							start_flg = 1								# Back to start menu
+							# lear image counter #
+							img_cnt = 0
+							# Indicate storage completion #
+							LEDS.Blink_Red1()
+							LEDS.Blink_Red1()
 						else:
 							LEDS.Blink_Cyan1()							# Indicate Selection
 					

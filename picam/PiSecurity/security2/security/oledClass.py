@@ -119,6 +119,16 @@ class OLEDClass:
 		self.led.draw_text2(0,25,text3,1)
 		self.led.display()
 
+	def OLEDusbfail(self):
+		# led.draw_text2(x-axis, y-axis, whatyouwanttoprint, size)
+		text = '-NO FLASH- '
+		self.led.draw_text2(0,0,text,2)
+		text2 = 'CHECK THE USB '
+		self.led.draw_text2(0,16,text2,1)
+		text3 = 'IS INSERTED...'
+		self.led.draw_text2(0,25,text3,1)
+		self.led.display()
+		
 	def OLEDdone(self):
 		# led.draw_text2(x-axis, y-axis, whatyouwanttoprint, size)
 		text = ' D O N E ! '
@@ -129,6 +139,16 @@ class OLEDClass:
 		self.led.draw_text2(0,25,text3,1)
 		self.led.display()
 
+	def OLEDfail(self):
+		# led.draw_text2(x-axis, y-axis, whatyouwanttoprint, size)
+		text = ' F A I L ! '
+		self.led.draw_text2(0,0,text,2)
+		text2 = '          '
+		self.led.draw_text2(0,16,text2,1)
+		text3 = '          '
+		self.led.draw_text2(0,25,text3,1)
+		self.led.display()
+		
 	def OLEDcancel(self):
 		# led.draw_text2(x-axis, y-axis, whatyouwanttoprint, size)
 		text = ' CANCELLED '

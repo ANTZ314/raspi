@@ -1,4 +1,4 @@
 Traceback (most recent call last):
-  File "main.py", line 341, in main
-    ts = timestamp.strftime("/home/pi/Pictures/security/") + img_cnt + ".jpg"
-TypeError: cannot concatenate 'str' and 'int' objects
+  File "main.py", line 397, in main
+    camera.close()												# save resources
+UnboundLocalError: local variable 'camera' referenced before assignment

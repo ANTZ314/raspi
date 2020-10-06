@@ -1,6 +1,6 @@
-----------------------------------------
+--------------------------------------------------------------------------------
 Disk Space, Memory Use, and CPU Load:
-----------------------------------------
+--------------------------------------------------------------------------------
 Disk Usage:
 -> du 	  -h 	-> human readable
 		  -s	-> summary
@@ -16,11 +16,9 @@ List all installed packages:
 -> dpkg --get-selections | less
 -> 'q' to exit
 
-============================================
-============================================
+--------------------------------------------------------------------------------
 SSH Control of the console:
-============================================
-============================================
+--------------------------------------------------------------------------------
 Download/update on both systems:
 $ sudo apt-get install ssh
 
@@ -34,9 +32,9 @@ From host PC side:
 $ ssh pi@192.168...
 -> password: romans
 
-============================================
+--------------------------------------------------------------------------------
 FILE TRANSFER: 
-============================================
+--------------------------------------------------------------------------------
 
 Copy (SCP) files to the RPi:
 -> scp file.ext pi@192.168.x.xxx:/home/pi/
@@ -62,9 +60,9 @@ Exit ssh & to return to normal terminal:
 $ exit
 
 
-============================================
+--------------------------------------------------------------------------------
 Basic Commands
-============================================
+--------------------------------------------------------------------------------
 space in file name - use '\ '
 date        - see date and time
 cal         - view calendar
@@ -121,9 +119,9 @@ command -options arguments
 
 
 
-------------------------------------------------------
+--------------------------------------------------------------------------------
 To install some file *.tar.gz, you basically would do:
-------------------------------------------------------
+--------------------------------------------------------------------------------
     Open a console, and go to the directory where the file is
 
     Type: tar -zxvf file.tar.gz
@@ -138,68 +136,62 @@ Most of the times you only need to:
 
     sudo make install
 
-------------------------------------------------------
-To install some file *.tar.gz, you basically would do:
-------------------------------------------------------
-    Open a console, and go to the directory where the file is
 
-    Type: tar -zxv file.tar.gz
+--------------------------------------------------------------------------------
+Run from Boot / Startup:
+--------------------------------------------------------------------------------
+-------------------
+METHOD 1: rc.local
+-------------------
+Run:
+sudo nano /etc/rc.local
 
-    Read the file INSTALL and/or README to know if you need some dependencies.
+Insert:
+sudo python /home/pi/sample.py &            <-- must fork code with '&' character
 
-Most of the times you only need to:
+------------------------------------------------
+NOTE:
+If you add a script into /etc/rc.local, it is added to the boot sequence. 
+If your code gets stuck then the boot sequence cannot proceed. So be careful as to which code you 
+are trying to run at boot and test the code a couple of times. You can also get the script’s 
+output and error written to a text file (say log.txt) and use it to debug.
 
-    type ./configure
+Eg.
+sudo python /home/pi/main/main.py & > /home/pi/Desktop/log.txt 2>&1
+------------------------------------------------
 
-    make
+------------------
+METHOD 2: .bashrc
+------------------
+[Runs at log in / Terminal is opened / SSH connection]
+Run:
+sudo nano /home/pi/.bashrc
 
-    sudo make install
+Insert:
+sleep 20        # 20 second delay
+sudo python /home/pi/main/main.py
 
---------------------------------------------
-----------------------------------------
-Clone Disk from SD to backup:
-----------------------------------------
--> List all drives & find:
-sudo fdisk -l
+------------------
+METHOD 3: crontab
+------------------
+Run:
+crontab -e
 
--> Create the Clone:
-sudo dd if=/dev/mmcblk0 of=~/Desktop/sd_backup.img
--OR-
-sudo dd if=/dev/mmcblk0 bs=4M of=~/Desktop/sd_backup.img
--OR-
-sudo apt-get install gddrescue
-sudo ddrescue /dev/mmcblk0 ~/Desktop/sd_backup.img
+Insert:
+@reboot sudo python /home/pi/main/main.py
 
-----------------------------------------
-Write cloned disk image to SD:
-----------------------------------------
--> First Make sure that the SD card’s partitions are unmounted:
-
--> List all drives & find:
-sudo fdisk -l
-
--> List mounted drives:
-sudo mount | grep sdb           (replace sdb with drive name)
-
--> unmount the listed ones:
-sudo umount /dev/sdb1 /dev/sdb2 /dev/sdb3
-
--> Use 'dd' to write the image:
-sudo dd if=~/raspbian_backup.img of=/dev/sdb
-
-
-----------------------------------------
+--------------------------------------------------------------------------------
 Basic cross compile:
-----------------------------------------
+--------------------------------------------------------------------------------
 From RasPi side, copy compiled file from host:
 $ scp antz@192.168.8.103:pidev/test/hello .
 
 Run the compiled file:
 $ ./hello
 
---------------------------------------------
+--------------------------------------------------------------------------------
 Create & run C file from Treminal:
---------------------------------------------
+--------------------------------------------------------------------------------
 create c file:
     gedit path/folder/file.c
 
@@ -218,9 +210,9 @@ open -> less filename
 * Up Arrow to scroll up one line [more on pg 40]
 
 
-------------------------------------------------------
+--------------------------------------------------------------------------------
 To display an image:
-------------------------------------------------------
+--------------------------------------------------------------------------------
 -> sudo apt install fim
 -> fim -a pic.jpg
 
@@ -238,9 +230,9 @@ R/r              Rotate 10 degrees CW/CCW
 ESC/q            Quit
 
 
-============================================
+--------------------------------------------------------------------------------
 Setting Time Date:
-============================================
+--------------------------------------------------------------------------------
 
 sudo dpkg-reconfigure tzdata # Select timezone
 
@@ -264,9 +256,42 @@ sudo systemctl start ntp.service
 
 sudo raspi-config -> locale settings -> select timezone
 
-============================================
+
+--------------------------------------------------------------------------------
+Clone Disk from SD to backup:
+--------------------------------------------------------------------------------
+-> List all drives & find:
+sudo fdisk -l
+
+-> Create the Clone:
+sudo dd if=/dev/mmcblk0 of=~/Desktop/sd_backup.img
+-OR-
+sudo dd if=/dev/mmcblk0 bs=4M of=~/Desktop/sd_backup.img
+-OR-
+sudo apt-get install gddrescue
+sudo ddrescue /dev/mmcblk0 ~/Desktop/sd_backup.img
+
+--------------------------------------------------------------------------------
+Write cloned disk image to SD:
+--------------------------------------------------------------------------------
+-> First Make sure that the SD card’s partitions are unmounted:
+
+-> List all drives & find:
+sudo fdisk -l
+
+-> List mounted drives:
+sudo mount | grep sdb           (replace sdb with drive name)
+
+-> unmount the listed ones:
+sudo umount /dev/sdb1 /dev/sdb2 /dev/sdb3
+
+-> Use 'dd' to write the image:
+sudo dd if=~/raspbian_backup.img of=/dev/sdb
+
+
+--------------------------------------------------------------------------------
 Corrupt USB / SD Card:
-============================================
+--------------------------------------------------------------------------------
 List the connected devices
 $ sudo parted -l
 
@@ -274,13 +299,16 @@ Write all zeros till the end:
 $ sudo dd if=/dev/zero of=/dev/sdb bs=4M			<-- USB
 $ sudo dd if=/dev/zero of=/dev/sdb bs=4096 count=1	<-- SD card 
 
---------------------------------------------
+
+
+--------------------------------------------------------------------------------
 Default video player:
+--------------------------------------------------------------------------------
 -> omxplayer filename.h264
 
-============================================
+----------------------------
 AUDIO SETTING (+OMXPlayer):
-============================================
+----------------------------
 To get sound out the headphone jack type:
 -> sudo modprobe snd_bcm2835
 -> sudo amixer cset numid=3 1
@@ -296,3 +324,5 @@ set the -o output for 3.5 audio jack
 
 set the -o output for hdmi
 -> omxplayer -o hdmi 
+
+--------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from glob import glob
 class usbClass:
 	## RASPI ##
 	path1 = "/media/pi/"												# Path to media directory
+	#path1 = "/media/root/"												# Path changed ? ? ?
 	path2 = "/home/pi/Pictures/security/"								# Path to images source directory
 	path3 = "/home/pi/Pictures/security"								# New image source directory
 
@@ -20,10 +21,9 @@ class usbClass:
 	def usb_put(self, path1, path2):									# destination folder (USB)
 		try:
 			path1 = glob(path1 + "*/")									# returns as list item
-			print(path1[0])												# print USB path
-			
 			## Check for USB destination path ##
 			directory = os.path.dirname(path1[0])						# check in images file path
+			
 			if not os.path.exists(directory):							# if directory doesn't exist
 				print("Directory doesn't exist!")						# Notify if directory was created
 			else:
@@ -32,17 +32,23 @@ class usbClass:
 					## Copy file to new destination ##
 					src = self.path2									# images folder
 					dst = path1[0]										# USB
-					print(self.path2)									# display the path
+					#print(self.path2)									# display the path
+					print("Source: " + src)
+					print("Destination: " + dst)
 					## move the file to destination folder ##
+					print("here")
 					shutil.move(src, dst)
 					print("Copied to USB!")
 					## Empty source folder ##
 					print("Clear Images")
 					shutil.rmtree(self.path2, ignore_errors=True)		# remove folder and contents
 					os.makedirs(self.path3)								# create new folder of same name
+					return 1
 				except:
 					print("USB Routine Error...")						# Notify user
-					sys.exit(0)											# exit properly 
+					#sys.exit(0)										# exit properly 
+					return 0											# return Error code
 		except:
 			print("Main USB Error")										# usually no USB Device
-			sys.exit(0)	
+			#sys.exit(0)	
+			return 0													# return Error code

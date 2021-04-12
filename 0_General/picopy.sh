@@ -1,16 +1,35 @@
 #!/bin/bash
 
-# Make executable:
+######################
+## Make executable: ##
 #chmod u+x hello-world
 
-#Copy file from Pi:
-#scp pi@192.168.8.101:/home/pi/test.jpg /home/antz/Desktop/
+## Get Ip Address: ##
+# hostname -I
 
-#Copy file to Pi:
-#scp /home/antz/Desktop/gui1.py pi@192.168.8.101:/home/pi/Documents/
+##  Usage: ##
+# cd ~/Desktop/temp/
+# ./rpi.sh
+######################
 
-#Copy folder to Pi:
-#scp -r /home/antz/Desktop/omnicode pi@192.168.8.100:/home/pi/Documents/
+##########
+# FROM PI:
+##########
 
-#Copy folder from Pi:
-scp -r pi@192.168.8.100:/home/pi/omnicode /home/antz/Desktop/
+## FILE ##
+#scp pi@192.168.0.114:/home/pi/eject.py /home/antz/Desktop/
+
+## FOLDER ##
+#scp -r pi@192.168.0.104:/home/pi/main3 /home/antz/Desktop/
+
+##########
+# TO PI:
+##########
+
+## FILE ##
+#scp /home/antz/Desktop/temp/gait/readme.md pi@192.168.0.104:/home/pi/
+
+## FOLDER ##
+#scp -r /home/antz/Desktop/iot/main pi@192.168.1.110:/home/pi/
+
+

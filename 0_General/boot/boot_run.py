@@ -4,13 +4,14 @@ Created By:
 	A.Smith [2017-08]
 
 Description:	
-	Run shell script for main security python code
-	Trying to avoid picamera resourse error
-	chmod +x master.sh
+	Open the appropriate folder an d run python script
+	Avoids resource error found in running resources from boot
+	Also includes error exceptions & logging
+	Place this file in root folder
 
 Run at boot:
 	$ sudo crontab -e
-	@reboot sleep 35 && sudo python /home/pi/master.py &
+	@reboot sleep 35 && sudo python /home/pi/boot_run.py &
 """
 import sys, os, time
 import subprocess
@@ -23,17 +24,15 @@ import RPi.GPIO as GPIO
 ###################
 def main():		
 	try:
-		try:	
-			#os.chdir("/home/pi/test")
-			#subprocess.call("./master.sh", shell=True)
-			os.chdir("/home/pi/security")
-			subprocess.call("python main.py --conf conf.json", shell=True)
+		try:
+			os.chdir("/home/pi/main")
+			subprocess.call("python main.py", shell=True)
 			#sys.exit(0)
 			
 		# Ctrl+C will exit the program correctly
 		except KeyboardInterrupt:
 			print("master.py - keyboard interupt")
-			#GPIO.cleanup()
+			GPIO.cleanup()
 			sys.exit(0)
 	# Any Main Errors saved to log.txt file:
 	except Exception:

@@ -1,5 +1,6 @@
-##RasPi - Set Up Static IP:
+# RasPi - Set Up Static IP:
 
+### TASKS:
 1.) Get current router (**network IP**):
 ```
 ip r | grep default
@@ -31,7 +32,8 @@ static domain_name_servers=<DNSIP>
 ```
 5.) Save the file and reboot
 
-###Test Static IP:
+---
+### Test Static IP:
 ```
 hostname -I
 ```
@@ -46,18 +48,13 @@ Check that the new IP is listed...
 | network IP		| IP Retrieved? 		|
 | DNS / nameserver 	| 192.168.0.1 / 8.8.8.8 / 1.1.1.1	|
 
-```
-interface wlan0								# eth0 / wlan0
-static ip_address=<STATICIP>/24				# New IP to assign
-static routers=192.168.0.175				# network IP ? ?
-static domain_name_servers=192.168.0.1		# DNS nameserver 
-```
+
 #### Example static IP configurations:
 ```
-interface wlan0
-static ip_address=192.168.0.10/24
-static routers=192.168.0.1
-static domain_name_servers=192.168.0.1
+interface wlan0								# eth0 / wlan0
+static ip_address=192.168.0.10/24			# New IP to assign
+static routers=192.168.0.1					# network IP ? ?
+static domain_name_servers=192.168.0.1		# DNS nameserver 
 ```
 ```
 interface wlan0

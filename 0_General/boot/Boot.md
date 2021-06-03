@@ -23,9 +23,14 @@ Select [2] **nano** and add the following:
 
 **Not running full code at boot - FIX:**
 
-The following will install "xterm" and then run new terminal window at boot beofre executing python command inside that terminal window.
+The following will install "xterm" and then run new terminal window at boot before executing python command inside that terminal window.
 
 * Run full updates + upgrades
+
+* Update to latest PIP:
+```
+/usr/bin/python -m pip install --upgrade pip
+```
 * Install:
 ```
 sudo apt install xterm
@@ -38,6 +43,8 @@ DISPLAY=:0 xterm -hold -e bash -c "python /home/pi/main/main.py"  &
 ```
 * Add to **crontab -e** (with 45 sec delay):
 ```
+crontab -e
+# Add the following
 @reboot sleep 45 && /home/pi/boot.sh
 ```
 
@@ -97,4 +104,41 @@ ps aux
 Find the PID of the python script
 ```
 sudo kill "ṔID"	# eg. sudo kill 541
+```
+
+---
+### RasPi - Data Publishing Error:
+
+* Publishes json string to GCP cloud dash **fine** when run from normal terminal
+* **Not** publishing  when running the code from xterm at boot:
+
+#### ERROR:
+```
+errors = backend._consume_errors()
+           assert errors[0].lib == backend._lib.ERR_LIB_RSA
+           AssertionError
+```
+
+#### SOLVE:
+
+* Update to latest PIP:
+```
+/usr/bin/python -m pip install --upgrade pip
+```
+* Install package dependancies:
+```
+sudo apt install libffi-dev
+sudo apt install libssl-dev
+```
+* Update to latest 'cryptography':
+```
+sudo pip install cryptography --upgrade
+-OR-
+sudo pip install -U cryptography
+```
+* Update + Upgrade and reboot
+```
+sudo apt update
+sudo apt -y upgrade
+sudo reboot
 ```

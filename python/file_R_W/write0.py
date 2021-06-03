@@ -3,11 +3,11 @@
 Python 2.7 (virtual env)
 Opens existing file reads & prints contents then appends 10 new lines
 """
-import sys
+#import sys
 
 def main():
 	file = open('test.txt', 'r') 
-	print file.read()
+	print (file.read())
 	file.close()
 	
 	

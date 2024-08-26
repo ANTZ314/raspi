@@ -1,5 +1,8 @@
 
 NOTES:
+------
+
+Dependencies: cv2, immutils, face_recognition, pickle
 
 rasFaceRec0:
 -> Possibly the original?

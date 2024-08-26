@@ -1,0 +1,38 @@
+# Facial Recognition Access
+
+**NOTES:**
+
+### Dependencies:
+
+* face_recognition, pickle, cv2, imutils, 
+
+### rasFaceRec0:
+
+* Possibly the original?
+* used the 'k' key to capture image
+* 'q' key to quit image window
+* no blinking led to indicate success/failure
+
+### rasFaceRec1:
+
+* select to capture new face or use existing
+* if new, bounding box is drawn around detecte3d face
+* use either 'k' key or push button to capure ('q' to exit)
+* 'a' to attempt recognition in capture image
+* if recognised, blink green twice, else blink red twice
+
+### rasFaceRec2:
+
+* same as above but:
+	* Uses push button for face capture
+	* will blink green LED when valid face is detected
+
+### Changes to make:
+
+* Completely headless?
+	* not display image window or draw facial bounding box
+	* remove action prompts:
+		* "capture new image" 	(start on button hold)
+		* "recognise face" 	(attempt after capture)
+* maybe confirmation button press after capture?
+

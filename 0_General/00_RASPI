@@ -25,8 +25,8 @@ $ sudo apt-get install ssh
 Check both Wifi's are on.
 
 Check BOTH IP Addresses:
-$ ifconfig
--> wlan? (via wifi)
+$ ifconfig      # wlan? (via wifi)
+$ hostname -I   # wifi
 
 From host PC side:
 $ ssh pi@192.168...

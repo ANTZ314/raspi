@@ -14,9 +14,9 @@ import pickle
 import cv2
 
 # path to encodings.pickle file 										 - Change path for RasPi
-pickleFile = "/home/antz/GIT31/OpenCV/FaceRec/faceReact/encodings.pickle"
+pickleFile = "/home/antz/git314/raspi/picam/RasFaceRec/rasFaceRec0/encodings.pickle"
 # path to newly captured image or previously stored image  				 - Change path for RasPi
-faceImage = "/home/antz/GIT31/OpenCV/FaceRec/faceReact/dataset/00000.png"
+faceImage = "/home/antz/git314/raspi/picam/RasFaceRec/rasFaceRec0/dataset/000.png"
 detection = "cnn"			# "hog" for Raspberry Pi
 
 class RecogClass:

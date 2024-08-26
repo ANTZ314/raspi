@@ -63,9 +63,9 @@ class DatasetClass:
 			# so we can later process it and use it for face recognition
 			if key == ord("k"):
 				p = os.path.sep.join([output, "{}.png".format(
-					str(total).zfill(5))])
+					str(total).zfill(3))])							# zfill(5) = 00000.png
 				cv2.imwrite(p, orig)
-				total += 1
+				#total += 1
 
 			# if the `q` key was pressed, break from the loop
 			elif key == ord("q"):
